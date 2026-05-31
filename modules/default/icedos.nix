@@ -42,7 +42,7 @@
     optionalDependencies = [
       {
         url = "github:icedos/desktop";
-        modules = [ "sddm" ];
+        modules = [ "plm" ];
       }
     ];
   };
