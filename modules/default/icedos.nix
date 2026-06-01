@@ -61,6 +61,7 @@
         modules = [
           "icons"
           "panel"
+          "splash-screen"
           "window-decorations"
         ];
       }
