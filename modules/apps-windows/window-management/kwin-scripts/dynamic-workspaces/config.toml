@@ -1,0 +1,4 @@
+[icedos.desktop.kde.dynamic-workspaces]
+perScreen = true
+orientation = "Horizontal" # Vertical, Horizontal
+number = 2

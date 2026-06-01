@@ -1,0 +1,19 @@
+[icedos.desktop.kde.panel]
+location = "top" # top, bottom, left, right, floating
+screen = "all" # "all", or a 0-based monitor index
+height = 32
+floating = false
+opacity = "opaque" # adaptive, opaque, translucent
+
+# Ordered list of applet IDs placed left-to-right on the panel. Per-applet
+# settings live in their own modules under panel/applets/ (merged in by ID);
+# IDs without a settings module render with plasma defaults.
+widgets = [
+  "org.kde.plasma.kickoff",
+  "org.kde.plasma.panelspacer",
+  "org.kde.plasma.icontasks",
+  "org.kde.plasma.panelspacer",
+  "org.kde.plasma.marginsseparator",
+  "org.kde.plasma.systemtray",
+  "org.kde.plasma.digitalclock",
+]

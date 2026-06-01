@@ -3,8 +3,14 @@
 {
   inputs.plasma67-cache.url = "github:IceDBorn/plasma67-cache";
 
+  inputs.plasma-manager = {
+    url = "github:nix-community/plasma-manager";
+    inputs.nixpkgs.follows = "nixpkgs";
+    inputs.home-manager.follows = "home-manager";
+  };
+
   outputs.nixosModules =
-    { ... }:
+    { inputs, ... }:
     [
       (
         {
@@ -20,6 +26,7 @@
           };
 
           services.desktopManager.plasma6.enable = true;
+
           environment.plasma6.excludePackages = with pkgs.kdePackages; [
             discover # Flatpak search
             dolphin # File manager
@@ -32,12 +39,31 @@
             milou # Dedicated search application built on top of Baloo
             okular # Document viewer
           ];
+
+          home-manager.sharedModules = [
+            {
+              imports = [
+                inputs.plasma-manager.homeModules.plasma-manager
+              ];
+
+              programs.plasma.enable = true;
+            }
+          ];
         }
       )
     ];
 
   meta = {
     name = "default";
+
+    dependencies = [
+      {
+        modules = [
+          "icons"
+          "panel"
+        ];
+      }
+    ];
 
     optionalDependencies = [
       {
