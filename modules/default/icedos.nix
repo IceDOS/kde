@@ -1,4 +1,4 @@
-{ ... }:
+{ icedosLib, lib, ... }:
 
 {
   inputs.plasma-manager = {
@@ -7,14 +7,34 @@
     inputs.home-manager.follows = "home-manager";
   };
 
+  options.icedos.desktop.kde =
+    let
+      inherit (icedosLib) mkStrListOption;
+      inherit (lib) readFile;
+
+      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde)
+        excludeDefaultPackages
+        ;
+    in
+    {
+      excludeDefaultPackages = mkStrListOption { default = excludeDefaultPackages; };
+    };
+
   outputs.nixosModules =
     { inputs, ... }:
     [
       (
         {
+          config,
+          icedosLib,
           pkgs,
           ...
         }:
+
+        let
+          inherit (config.icedos.desktop.kde) excludeDefaultPackages;
+          inherit (icedosLib.pkgs) mapper;
+        in
         {
           nix.settings = {
             substituters = [ "https://cache.garnix.io" ];
@@ -25,18 +45,21 @@
 
           services.desktopManager.plasma6.enable = true;
 
-          environment.plasma6.excludePackages = with pkgs.kdePackages; [
-            discover # Flatpak search
-            dolphin # File manager
-            elisa # Music player
-            gwenview # Image viewer
-            kate # Advanced text editor
-            khelpcenter # Help center
-            konsole # Terminal
-            ktexteditor # KTextEditor Framework
-            milou # Dedicated search application built on top of Baloo
-            okular # Document viewer
-          ];
+          environment.plasma6.excludePackages =
+            (with pkgs.kdePackages; [
+              discover # KDE store
+              elisa # Music player
+              gwenview # Image viewer
+              kate # Text editor
+              khelpcenter # Help center
+              konsole # Terminal
+              ktexteditor # Text edit framework
+              kwin-x11 # X11 session of kwin
+              milou # Search engine app
+              okular # Document viewer
+              qrca # Barcode scanner
+            ])
+            ++ (mapper pkgs.kdePackages excludeDefaultPackages);
 
           home-manager.sharedModules = [
             {
