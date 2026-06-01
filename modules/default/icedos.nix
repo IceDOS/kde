@@ -1,8 +1,6 @@
 { ... }:
 
 {
-  inputs.plasma67-cache.url = "github:IceDBorn/plasma67-cache";
-
   inputs.plasma-manager = {
     url = "github:nix-community/plasma-manager";
     inputs.nixpkgs.follows = "nixpkgs";
@@ -59,8 +57,10 @@
     dependencies = [
       {
         modules = [
+          "focus"
           "icons"
           "panel"
+          "shortcuts"
           "splash-screen"
           "window-decorations"
         ];
