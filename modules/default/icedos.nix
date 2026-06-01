@@ -61,6 +61,7 @@
         modules = [
           "icons"
           "panel"
+          "window-decorations"
         ];
       }
     ];
