@@ -82,6 +82,7 @@
         modules = [
           "focus"
           "icons"
+          "keyboard"
           "panel"
           "shortcuts"
           "splash-screen"
