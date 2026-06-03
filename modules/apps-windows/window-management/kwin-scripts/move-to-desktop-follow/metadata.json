@@ -1,0 +1,14 @@
+{
+  "KPackageStructure": "KWin/Script",
+  "KPlugin": {
+    "Id": "move-to-desktop-follow",
+    "Name": "Move Window to Desktop and Follow",
+    "Description": "Shortcuts to move the active window to a numbered desktop and switch to it",
+    "Version": "1.0",
+    "License": "MIT",
+    "EnabledByDefault": true
+  },
+  "X-Plasma-API": "javascript",
+  "X-Plasma-API-Minimum-Version": "6.0",
+  "X-Plasma-MainScript": "code/main.js"
+}
