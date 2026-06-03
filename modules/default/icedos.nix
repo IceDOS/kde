@@ -85,6 +85,7 @@
           "panel"
           "shortcuts"
           "splash-screen"
+          "wallpaper"
           "window-decorations"
         ];
       }
