@@ -62,13 +62,38 @@
             ++ (mapper pkgs.kdePackages excludeDefaultPackages);
 
           home-manager.sharedModules = [
-            {
-              imports = [
-                inputs.plasma-manager.homeModules.plasma-manager
-              ];
+            (
+              {
+                config,
+                lib,
+                pkgs,
+                ...
+              }:
 
-              programs.plasma.enable = true;
-            }
+              {
+                imports = [
+                  inputs.plasma-manager.homeModules.plasma-manager
+                ];
+
+                programs.plasma.enable = true;
+
+                # plasma-manager only applies its panel/theme/wallpaper desktop
+                # scripts at login (autostart -> run_all.sh). Run run_all.sh on every
+                # rebuild too, best-effort, so changes land without a relogin.
+                home.activation.icedosPlasmaApply = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+                  rd="/run/user/$(${pkgs.coreutils}/bin/id -u)"
+                  bus="$rd/bus"
+                  run_all="${config.xdg.dataHome}/plasma-manager/run_all.sh"
+
+                  if [ -S "$bus" ] && [ -x "$run_all" ] \
+                    && XDG_RUNTIME_DIR="$rd" DBUS_SESSION_BUS_ADDRESS="unix:path=$bus" \
+                       /run/current-system/sw/bin/qdbus org.kde.plasmashell >/dev/null 2>&1; then
+                    $DRY_RUN_CMD env PATH="/run/current-system/sw/bin:$PATH" \
+                      XDG_RUNTIME_DIR="$rd" DBUS_SESSION_BUS_ADDRESS="unix:path=$bus" "$run_all" || true
+                  fi
+                '';
+              }
+            )
           ];
         }
       )
