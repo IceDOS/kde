@@ -1,0 +1,18 @@
+[icedos.desktop.kde.panel.systemTray]
+disabledApplets = []
+knownApplets = [
+  "org.kde.plasma.cameraindicator",
+  "org.kde.plasma.clipboard",
+  "org.kde.plasma.devicenotifier",
+  "org.kde.plasma.manage-inputmethod",
+  "org.kde.plasma.mediacontroller",
+  "org.kde.plasma.notifications",
+  "org.kde.kscreen",
+  "org.kde.plasma.battery",
+  "org.kde.plasma.brightness",
+  "org.kde.plasma.keyboardindicator",
+  "org.kde.plasma.keyboardlayout",
+  "org.kde.plasma.networkmanagement",
+  "org.kde.plasma.volume",
+  "org.kde.plasma.weather",
+]
