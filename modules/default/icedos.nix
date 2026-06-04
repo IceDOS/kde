@@ -110,6 +110,7 @@
           "keyboard"
           "panel"
           "power"
+          "screen-edges"
           "shortcuts"
           "splash-screen"
           "wallpaper"
