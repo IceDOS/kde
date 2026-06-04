@@ -45,7 +45,7 @@
 
           services.desktopManager.plasma6.enable = true;
 
-          # Logging in to HeroUI Pro requires these libraries to be accessible.
+          # FHS apps that depend on libsecret require these libraries.
           # GNOME injects these libraries to the login session.
           environment.sessionVariables.LD_LIBRARY_PATH = [
             "${pkgs.glib.out}/lib"
