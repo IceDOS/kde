@@ -45,6 +45,13 @@
 
           services.desktopManager.plasma6.enable = true;
 
+          # Logging in to HeroUI Pro requires these libraries to be accessible.
+          # GNOME injects these libraries to the login session.
+          environment.sessionVariables.LD_LIBRARY_PATH = [
+            "${pkgs.glib.out}/lib"
+            "${pkgs.libsecret}/lib"
+          ];
+
           environment.plasma6.excludePackages =
             (with pkgs.kdePackages; [
               discover # KDE store
