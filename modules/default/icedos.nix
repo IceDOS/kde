@@ -84,6 +84,7 @@
           "icons"
           "keyboard"
           "panel"
+          "power"
           "shortcuts"
           "splash-screen"
           "wallpaper"
