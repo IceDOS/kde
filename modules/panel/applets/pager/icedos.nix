@@ -12,6 +12,7 @@
         icedos.desktop.kde.panel.applets."org.kde.plasma.pager" = {
           pager.general = {
             displayedText = "desktopNumber";
+            showOnlyCurrentScreen = true;
             showWindowOutlines = false;
           };
         };
