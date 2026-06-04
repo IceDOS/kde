@@ -12,13 +12,15 @@
         {
           home-manager.sharedModules = [
             (
-              { config, ... }:
+              { config, lib, ... }:
               let
                 inherit (desktop.users.${config.home.username}.idle)
                   disableMonitors
                   lock
                   suspend
                   ;
+
+                inherit (lib) mkIf;
               in
               {
                 # Screen locking. kscreenlocker timeout is in MINUTES,
@@ -36,7 +38,7 @@
                   # Auto suspend after idle
                   autoSuspend = {
                     action = if suspend.enable then "sleep" else "nothing";
-                    idleTimeout = suspend.seconds;
+                    idleTimeout = mkIf suspend.enable suspend.seconds;
                   };
                 };
               }
