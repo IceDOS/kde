@@ -72,12 +72,33 @@
 
                   KrohnkiteToggleFloat = "Meta+G";
 
+                  # Monocle / rotate. Second list entry is the Greek-layout keysym
+                  # for the same physical key — KWin Wayland matches the active
+                  # layout's keysym, so Latin-only bindings die on `gr`.
+                  KrohnkiteMonocleLayout = lib.mkDefault "Meta+M";
+                  # Free Meta+R from Krohnkite's Rotate so the Walker hotkey wins.
+                  # KrohnkiteRotate = lib.mkDefault [ ];
+
+                  # Generic desktop switching + window close.
+                  "Switch to Desktop 1" = lib.mkDefault "Meta+1";
+                  "Switch to Desktop 2" = lib.mkDefault "Meta+2";
+                  "Switch to Desktop 3" = lib.mkDefault "Meta+3";
+                  "Switch to Desktop 4" = lib.mkDefault "Meta+4";
+                  "Switch to Desktop 5" = lib.mkDefault "Meta+5";
+                  "Switch to Desktop 6" = lib.mkDefault "Meta+6";
+                  "Switch to Desktop 7" = lib.mkDefault "Meta+7";
+                  "Switch to Desktop 8" = lib.mkDefault "Meta+8";
+                  "Switch to Desktop 9" = lib.mkDefault "Meta+9";
+                  "Switch to Desktop 10" = lib.mkDefault "Meta+0";
+
+                  "Window Close" = lib.mkDefault "Meta+Q";
+
                   # Free the arrow keys from KWin's built-in quick-tile so the
                   # krohnkite focus bindings above win.
-                  "Window Quick Tile Top" = [ ];
-                  "Window Quick Tile Bottom" = [ ];
-                  "Window Quick Tile Left" = [ ];
-                  "Window Quick Tile Right" = [ ];
+                  # "Window Quick Tile Top" = [ ];
+                  # "Window Quick Tile Bottom" = [ ];
+                  # "Window Quick Tile Left" = [ ];
+                  # "Window Quick Tile Right" = [ ];
                 };
               };
             }
