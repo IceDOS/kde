@@ -3,41 +3,14 @@
 {
   options.icedos.desktop.kde.windowBehavior.focus =
     let
-      inherit (icedosLib)
-        mkBoolOption
-        mkEnumOption
-        mkIntBetweenOption
-        ;
-
+      inherit (icedosLib) mkBoolOption;
       inherit (lib) readFile;
 
       inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.windowBehavior.focus)
-        delay
-        policy
         separateScreenFocus
         ;
     in
     {
-      policy =
-        mkEnumOption
-          {
-            path = "icedos.desktop.kde.windowBehavior.focus.policy";
-            source = ./config.toml;
-            default = policy;
-          }
-          [
-            "click-to-focus"
-            "focus-follows-mouse"
-            "focus-under-mouse"
-            "focus-strictly-under-mouse"
-          ];
-
-      delay = mkIntBetweenOption {
-        path = "icedos.desktop.kde.windowBehavior.focus.delay";
-        source = ./config.toml;
-        default = delay;
-      } 0 3000;
-
       separateScreenFocus = mkBoolOption { default = separateScreenFocus; };
     };
 
@@ -47,25 +20,15 @@
       (
         { config, ... }:
         let
-          inherit (config.icedos.desktop.kde.windowBehavior.focus)
-            delay
-            policy
-            separateScreenFocus
-            ;
-
-          focusPolicies = {
-            "click-to-focus" = "ClickToFocus";
-            "focus-follows-mouse" = "FocusFollowsMouse";
-            "focus-under-mouse" = "FocusUnderMouse";
-            "focus-strictly-under-mouse" = "FocusStrictlyUnderMouse";
-          };
+          inherit (config.icedos.desktop.windows) focus;
+          inherit (config.icedos.desktop.kde.windowBehavior.focus) separateScreenFocus;
         in
         {
           home-manager.sharedModules = [
             {
               programs.plasma.configFile.kwinrc.Windows = {
-                FocusPolicy = focusPolicies.${policy};
-                DelayFocusInterval = delay;
+                FocusPolicy = if focus.followMouse then "FocusFollowsMouse" else "ClickToFocus";
+                DelayFocusInterval = focus.delay;
                 SeparateScreenFocus = separateScreenFocus;
               };
             }

@@ -1,4 +1,2 @@
 [icedos.desktop.kde.windowBehavior.focus]
-delay = 300
-policy = "click-to-focus"
 separateScreenFocus = false
