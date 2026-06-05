@@ -15,6 +15,7 @@
       inherit (lib) readFile types;
 
       inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.panel)
+        autohide
         floating
         height
         location
@@ -24,6 +25,16 @@
         ;
     in
     {
+      applets = mkAttrsOption { default = { }; };
+      autohide = mkBoolOption { default = autohide; };
+      floating = mkBoolOption { default = floating; };
+
+      height = mkIntBetweenOption {
+        path = "icedos.desktop.kde.panel.height";
+        source = ./config.toml;
+        default = height;
+      } 1 1000;
+
       location =
         mkEnumOption
           {
@@ -39,17 +50,6 @@
             "floating"
           ];
 
-      # "all" or a 0-based monitor index.
-      screen = mkEitherOption { default = screen; } types.str types.int;
-
-      height = mkIntBetweenOption {
-        path = "icedos.desktop.kde.panel.height";
-        source = ./config.toml;
-        default = height;
-      } 1 1000;
-
-      floating = mkBoolOption { default = floating; };
-
       opacity =
         mkEnumOption
           {
@@ -63,8 +63,8 @@
             "translucent"
           ];
 
+      screen = mkEitherOption { default = screen; } types.str types.int;
       widgets = mkStrListOption { default = widgets; };
-      applets = mkAttrsOption { default = { }; };
     };
 
   outputs.nixosModules =
@@ -75,6 +75,7 @@
         let
           inherit (config.icedos.desktop.kde.panel)
             applets
+            autohide
             floating
             height
             location
@@ -83,14 +84,17 @@
             widgets
             ;
 
-          resolved = map (id: applets.${id} or id) widgets;
+          hiding = if autohide then "autohide" else "none";
 
-          opacityInt =
-            ({
+          opacityMap =
+            {
               adaptive = 0;
               opaque = 1;
               translucent = 2;
-            }).${opacity};
+            }
+            .${opacity};
+
+          resolved = map (id: applets.${id} or id) widgets;
         in
         {
           home-manager.sharedModules = [
@@ -103,6 +107,7 @@
                     inherit
                       floating
                       height
+                      hiding
                       location
                       opacity
                       screen
@@ -125,7 +130,7 @@
                   priority = 3;
                   runAlways = true;
                   text = ''
-                    want=${toString opacityInt}
+                    want=${toString opacityMap}
                     changed=0
                     ids=$(qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'print(panels().map(function(p){return p.id;}).join(" "))' 2>/dev/null)
 

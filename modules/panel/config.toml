@@ -1,9 +1,10 @@
 [icedos.desktop.kde.panel]
-location = "top" # top, bottom, left, right, floating
-screen = "all" # "all", or a 0-based monitor index
-height = 32
+autohide = false
 floating = false
+height = 32
+location = "top" # top, bottom, left, right, floating
 opacity = "opaque" # adaptive, opaque, translucent
+screen = "all" # "all", or a 0-based monitor index
 
 # Ordered list of applet IDs placed left-to-right on the panel. Per-applet
 # settings live in their own modules under panel/applets/ (merged in by ID);
