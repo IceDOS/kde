@@ -1,2 +1,2 @@
 [icedos.desktop.kde.windowBehavior.focus]
-separateScreenFocus = false
+separateScreenFocus = true

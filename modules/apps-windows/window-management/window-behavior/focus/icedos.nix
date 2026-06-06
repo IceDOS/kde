@@ -18,19 +18,23 @@
     { ... }:
     [
       (
-        { config, ... }:
+        { config, lib, ... }:
         let
-          inherit (config.icedos.desktop.windows) focus;
-          inherit (config.icedos.desktop.kde.windowBehavior.focus) separateScreenFocus;
+          inherit (config.icedos.desktop) kde windows;
+          inherit (kde.windowBehavior.focus) separateScreenFocus;
+          inherit (lib) optionalAttrs;
+          inherit (windows) focus;
+          inherit (focus) delay followsMouse;
         in
         {
           home-manager.sharedModules = [
             {
               programs.plasma.configFile.kwinrc.Windows = {
-                FocusPolicy = if focus.followMouse then "FocusFollowsMouse" else "ClickToFocus";
-                DelayFocusInterval = focus.delay;
+                DelayFocusInterval = delay;
+                FocusPolicy = if followsMouse then "FocusFollowsMouse" else "ClickToFocus";
                 SeparateScreenFocus = separateScreenFocus;
-              };
+              }
+              // optionalAttrs followsMouse { NextFocusPrefersMouse = true; };
             }
           ];
         }
