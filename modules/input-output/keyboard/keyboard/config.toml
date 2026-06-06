@@ -1,0 +1,7 @@
+[icedos.desktop.kde.keyboard]
+# Which windows a layout switch affects (kxkbrc SwitchMode):
+#   global   = All windows
+#   desktop  = All windows on current desktop
+#   winClass = All windows of current application
+#   window   = Current window only
+switchingPolicy = "global"
