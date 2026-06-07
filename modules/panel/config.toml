@@ -1,8 +1,8 @@
 [icedos.desktop.kde.panel]
 autohide = false
 floating = false
-height = 32
-location = "top" # top, bottom, left, right, floating
+height = 46
+location = "bottom" # top, bottom, left, right, floating
 opacity = "opaque" # adaptive, opaque, translucent
 screen = "all" # "all", or a 0-based monitor index
 
@@ -11,7 +11,6 @@ screen = "all" # "all", or a 0-based monitor index
 # IDs without a settings module render with plasma defaults.
 widgets = [
   "org.kde.plasma.kickoff",
-  "org.kde.plasma.panelspacer",
   "org.kde.plasma.icontasks",
   "org.kde.plasma.panelspacer",
   "org.kde.plasma.marginsseparator",
