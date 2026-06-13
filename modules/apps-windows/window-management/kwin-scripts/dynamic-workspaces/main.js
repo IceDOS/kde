@@ -17,6 +17,22 @@ const DEBUG        = false;         // flip true to trace reconcile in the journ
 
 let busy = false;                   // our own edits re-fire signals -> guard recursion
 
+let reconcileTimer = null;          // defer pool edits out of the signal emit
+function scheduleReconcile() {
+    try {
+        if (reconcileTimer === null) {
+            reconcileTimer = new QTimer();
+            reconcileTimer.singleShot = true;
+            reconcileTimer.interval = 0;
+            reconcileTimer.timeout.connect(reconcile);
+        }
+        reconcileTimer.start(0);    // restart coalesces signal bursts
+    } catch (e) {
+        log("QTimer unavailable, running sync:", e);
+        reconcile();
+    }
+}
+
 function log() {
     if (!DEBUG) return;
     try {
@@ -145,11 +161,11 @@ function reconcile() {
     }
 }
 
-function watch(w) { if (w) w.desktopsChanged.connect(reconcile); }
+function watch(w) { if (w) w.desktopsChanged.connect(scheduleReconcile); }
 
 workspace.windowList().forEach(watch);
-workspace.windowAdded.connect(w => { watch(w); reconcile(); });
-workspace.windowRemoved.connect(reconcile);
-workspace.currentDesktopChanged.connect(reconcile);
+workspace.windowAdded.connect(w => { watch(w); scheduleReconcile(); });
+workspace.windowRemoved.connect(scheduleReconcile);
+workspace.currentDesktopChanged.connect(scheduleReconcile);
 
-reconcile();
+scheduleReconcile();
