@@ -1,0 +1,14 @@
+{
+  "KPackageStructure": "KWin/Script",
+  "KPlugin": {
+    "Id": "icedos-layout-osd",
+    "Name": "IceDOS Layout OSD",
+    "Description": "Shows the keyboard-layout OSD when a focus-driven (per-window) layout switch occurs",
+    "Version": "1.0",
+    "License": "MIT",
+    "EnabledByDefault": true
+  },
+  "X-Plasma-API": "javascript",
+  "X-Plasma-API-Minimum-Version": "6.0",
+  "X-Plasma-MainScript": "code/main.js"
+}
