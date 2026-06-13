@@ -84,6 +84,21 @@
 
                 programs.plasma.enable = true;
 
+                # Stylix's KDE look-and-feel activation (upstream stylix
+                # modules/kde/hm.nix `stylixLookAndFeel`) and plasma-manager's
+                # run_all.sh both call plasma-apply-lookandfeel from the systemd
+                # home-manager activation service, whose env lacks XDG_MENU_PREFIX.
+                # plasma-workspace ships only `plasma-applications.menu`, so
+                # without the prefix plasma-apply searches for the unprefixed
+                # `applications.menu` and logs a not-found warning. Export it
+                # before those entries (same activation shell) so the menu
+                # resolves.
+                home.activation.icedosXdgMenuPrefix =
+                  lib.hm.dag.entryBefore [ "stylixLookAndFeel" "icedosPlasmaApply" ]
+                    ''
+                      export XDG_MENU_PREFIX="plasma-"
+                    '';
+
                 # plasma-manager only applies its panel/theme/wallpaper desktop
                 # scripts at login (autostart -> run_all.sh). Run run_all.sh on every
                 # rebuild too, best-effort, so changes land without a relogin.
