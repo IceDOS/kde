@@ -1,0 +1,7 @@
+[icedos.desktop.kde.window-borders]
+borderWidth = 1
+borderRadius = 10
+activeColor = ""   # "" = Stylix accent (base0D); else "#rrggbb" or a named color
+inactiveColor = "" # "" = Stylix dim (base03); else "#rrggbb"/named, or "transparent" for none
+# resourceClass substrings to leave un-bordered (case-insensitive)
+excludeClasses = []
