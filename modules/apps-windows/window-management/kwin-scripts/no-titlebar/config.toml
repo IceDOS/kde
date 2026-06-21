@@ -1,0 +1,3 @@
+[icedos.desktop.kde.no-titlebar]
+# resourceClass substrings to keep their titlebars (case-insensitive)
+excludeClasses = []
