@@ -18,7 +18,7 @@
 // re-fire and merge into the native OSD. Cost: one trivial DBus call per tick.
 
 const POLL_MS = 200;   // see icedos.nix note for making this configurable
-const DEBUG   = false; // flip true to trace into the journal (journalctl --user -f)
+const DEBUG   = true;  // TEMP: 6.7 diagnosis — journalctl --user -f | grep layout-osd. Set false once fixed.
 
 // org.kde.keyboard surface (read current layout + the layout name table).
 const KBD_SERVICE   = "org.kde.keyboard";
@@ -75,16 +75,20 @@ function tick() {
         KBD_SERVICE, KBD_PATH, KBD_INTERFACE, "getLayout",
         function (idx) {
             inFlight = false;
-            if (typeof idx !== "number") { log("bad getLayout:", idx); return; }
-            if (idx === last) return;        // no change -> nothing to do
+            // 6.7/Qt6.10: callDBus may hand back the uint as a non-number type.
+            // Coerce instead of rejecting on typeof, so a valid index still works.
+            const n = Number(idx);
+            if (!isFinite(n)) { log("bad getLayout (not numeric):", idx, "type", typeof idx); return; }
+            if (n === last) return;           // no change -> nothing to do
 
+            log("getLayout changed ->", n, "(was", last, "| raw type", typeof idx + ")");
             const first = (last === null);
-            last = idx;                       // persist BEFORE the async name fetch
-            if (first) {                      // seed silently: no OSD on login/startup
-                log("seed last =", idx);
+            last = n;                          // persist BEFORE the async name fetch
+            if (first) {                       // seed silently: no OSD on login/startup
+                log("seed last =", n);
                 return;
             }
-            showOsdForIndex(idx);
+            showOsdForIndex(n);
         }
     );
 }

@@ -70,7 +70,12 @@
                   KrohnkiteShiftLeft = "Meta+Shift+Left";
                   KrohnkiteShiftRight = "Meta+Shift+Right";
 
-                  KrohnkiteToggleFloat = "Meta+G";
+                  KrohnkiteToggleFloat = "Meta+T";
+
+                  "Window Fullscreen" = [
+                    "Meta+F"
+                    "Meta+Φ"
+                  ];
 
                   # Monocle / rotate. Second list entry is the Greek-layout keysym
                   # for the same physical key — KWin Wayland matches the active
@@ -91,7 +96,14 @@
                   "Switch to Desktop 9" = lib.mkDefault "Meta+9";
                   "Switch to Desktop 10" = lib.mkDefault "Meta+0";
 
-                  "Window Close" = lib.mkDefault "Meta+Q";
+                  "Window Close" = lib.mkDefault [
+                    "Meta+Q"
+                    "Meta+;"
+                  ];
+
+                  # KDE binds Meta+T to its tiling-editor overlay ("Edit Tiles",
+                  # the layout-zones UI). Free it so KrohnkiteToggleFloat wins.
+                  "Edit Tiles" = [ ];
 
                   # Free the arrow keys from KWin's built-in quick-tile so the
                   # krohnkite focus bindings above win.

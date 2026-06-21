@@ -45,10 +45,7 @@ function log() {
 function desktops() { return workspace.desktops; }
 
 function hasPerOutput() {
-    return PER_SCREEN &&
-        typeof workspace.currentDesktopForScreen === "function" &&
-        typeof workspace.setCurrentDesktopForScreen === "function" &&
-        !!(workspace.screens && workspace.screens.length);
+    return PER_SCREEN && !!(workspace.screens && workspace.screens.length);
 }
 
 function currentDesktopOf(output) {
@@ -61,7 +58,7 @@ function setCurrentDesktopOf(output, vd) {
     if (!vd) return;
     if (output === null) { workspace.currentDesktop = vd; return; }
     try { workspace.setCurrentDesktopForScreen(vd, output); }
-    catch (e) { workspace.currentDesktop = vd; }
+    catch (e) { /* no per-output view API; leave each output's view as-is */ }
 }
 
 // Normal, non-sticky, single-desktop, pager-visible window (minimized still counts).
@@ -72,7 +69,14 @@ function packable(w) {
 
 function onOutput(w, output) {
     if (output === null) return true;
-    try { return w.output === output; } catch (e) { return false; }
+    try {
+        const o = w.output;
+        if (o) return o === output || (o.name && o.name === output.name);
+        // No output set (window on a non-viewed desktop): match by geometry.
+        const g = w.frameGeometry, r = output.geometry;
+        const cx = g.x + g.width / 2, cy = g.y + g.height / 2;
+        return cx >= r.x && cx < r.x + r.width && cy >= r.y && cy < r.y + r.height;
+    } catch (e) { return false; }
 }
 
 // Global emptiness: no packable window references this desktop on ANY output.
