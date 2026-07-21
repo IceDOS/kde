@@ -16,6 +16,7 @@
 
       inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.panel)
         autohide
+        favorites
         floating
         height
         location
@@ -27,6 +28,7 @@
     {
       applets = mkAttrsOption { default = { }; };
       autohide = mkBoolOption { default = autohide; };
+      favorites = mkStrListOption { default = favorites; };
       floating = mkBoolOption { default = floating; };
 
       height = mkIntBetweenOption {

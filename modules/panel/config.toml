@@ -6,6 +6,14 @@ location = "bottom" # top, bottom, left, right, floating
 opacity = "opaque" # adaptive, opaque, translucent
 screen = "all" # "all", or a 0-based monitor index
 
+# Pinned launchers shown inside the Icons-only Task Manager
+# (org.kde.plasma.icontasks). Each entry is a .desktop file base name (without
+# ".desktop"); the pinned app's icon is taken from that desktop file
+# automatically. Only configures the icontasks widget's pinned icons — it does
+# not add the widget; keep "org.kde.plasma.icontasks" in `widgets` to show it.
+# Leave empty to keep hand-placed pins untouched.
+favorites = [] # e.g. ["signal", "helium"]
+
 # Ordered list of applet IDs placed left-to-right on the panel. Per-applet
 # settings live in their own modules under panel/applets/ (merged in by ID);
 # IDs without a settings module render with plasma defaults.
