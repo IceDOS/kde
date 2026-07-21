@@ -105,12 +105,31 @@
                   # the layout-zones UI). Free it so KrohnkiteToggleFloat wins.
                   "Edit Tiles" = [ ];
 
-                  # Free the arrow keys from KWin's built-in quick-tile so the
-                  # krohnkite focus bindings above win.
-                  # "Window Quick Tile Top" = [ ];
-                  # "Window Quick Tile Bottom" = [ ];
-                  # "Window Quick Tile Left" = [ ];
-                  # "Window Quick Tile Right" = [ ];
+                  # Meta+Shift+Arrow = Krohnkite move-within-layout (bound above).
+                  # Free Meta+Shift+Left/Right from KDE's window-to-screen so the
+                  # Krohnkite Shift bindings win uncontested.
+                  "Window to Next Screen" = [ ];
+                  "Window to Previous Screen" = [ ];
+
+                  # Meta+Alt+Arrow = move window to the adjacent monitor. KWin
+                  # built-in — Krohnkite 0.9.9.2 has no screen actions of its own.
+                  "Window One Screen Up" = "Meta+Alt+Up";
+                  "Window One Screen Down" = "Meta+Alt+Down";
+                  "Window One Screen to the Left" = "Meta+Alt+Left";
+                  "Window One Screen to the Right" = "Meta+Alt+Right";
+
+                  # Free Meta+Alt+Arrow from its former occupants: KDE quick-tile
+                  # (dropped) and KWin's directional window-switch. Full unbind
+                  # ([ ]) also kills quick-tile's Meta+Arrow default, which would
+                  # otherwise clash with Krohnkite focus.
+                  "Window Quick Tile Top" = [ ];
+                  "Window Quick Tile Bottom" = [ ];
+                  "Window Quick Tile Left" = [ ];
+                  "Window Quick Tile Right" = [ ];
+                  "Switch Window Up" = [ ];
+                  "Switch Window Down" = [ ];
+                  "Switch Window Left" = [ ];
+                  "Switch Window Right" = [ ];
                 };
               };
             }
