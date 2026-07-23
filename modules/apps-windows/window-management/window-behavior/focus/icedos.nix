@@ -1,12 +1,12 @@
 { icedosLib, lib, ... }:
 
 {
-  options.icedos.desktop.kde.windowBehavior.focus =
+  options.icedos.desktop.kde.window-behavior.focus =
     let
       inherit (icedosLib) mkBoolOption;
       inherit (lib) readFile;
 
-      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.windowBehavior.focus)
+      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.window-behavior.focus)
         separateScreenFocus
         ;
     in
@@ -21,7 +21,7 @@
         { config, lib, ... }:
         let
           inherit (config.icedos.desktop) kde windows;
-          inherit (kde.windowBehavior.focus) separateScreenFocus;
+          inherit (kde.window-behavior.focus) separateScreenFocus;
           inherit (lib) optionalAttrs;
           inherit (windows) focus;
           inherit (focus) delay followsMouse;

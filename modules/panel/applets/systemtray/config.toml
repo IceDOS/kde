@@ -1,4 +1,4 @@
-[icedos.desktop.kde.panel.systemTray]
+[icedos.desktop.kde.panel.system-tray]
 disabledApplets = []
 knownApplets = [
   "org.kde.plasma.cameraindicator",

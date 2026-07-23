@@ -1,4 +1,4 @@
-[icedos.desktop.kde.splashScreen]
+[icedos.desktop.kde.splash-screen]
 # Splash screen theme shown at login. "None" disables the splash screen.
 # Use a theme id (see the Theme key in ~/.config/ksplashrc after picking one in
 # System Settings) to enable a specific splash.

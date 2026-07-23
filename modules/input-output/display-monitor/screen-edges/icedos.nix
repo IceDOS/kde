@@ -1,7 +1,7 @@
 { icedosLib, lib, ... }:
 
 {
-  options.icedos.desktop.kde.screenEdges =
+  options.icedos.desktop.kde.screen-edges =
     let
       inherit (icedosLib)
         mkEnumOption
@@ -10,7 +10,7 @@
 
       inherit (lib) head readFile;
 
-      inherit (head (fromTOML (readFile ./screen-edges.toml)).icedos.desktop.kde.screenEdges)
+      inherit (head (fromTOML (readFile ./screen-edges.toml)).icedos.desktop.kde.screen-edges)
         action
         position
         ;
@@ -19,7 +19,7 @@
       position =
         mkEnumOption
           {
-            path = "icedos.desktop.kde.screenEdges.*.position";
+            path = "icedos.desktop.kde.screen-edges.*.position";
             source = ./screen-edges.toml;
             default = position;
           }
@@ -37,7 +37,7 @@
       action =
         mkEnumOption
           {
-            path = "icedos.desktop.kde.screenEdges.*.action";
+            path = "icedos.desktop.kde.screen-edges.*.action";
             source = ./screen-edges.toml;
             default = action;
           }
@@ -69,7 +69,7 @@
         }:
 
         let
-          inherit (config.icedos.desktop.kde) screenEdges;
+          screenEdges = config.icedos.desktop.kde.screen-edges;
 
           inherit (lib)
             attrNames

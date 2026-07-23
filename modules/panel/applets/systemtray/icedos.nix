@@ -1,11 +1,11 @@
 { icedosLib, lib, ... }:
 
 {
-  options.icedos.desktop.kde.panel.systemTray =
+  options.icedos.desktop.kde.panel.system-tray =
     let
       inherit (lib) readFile;
 
-      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.panel.systemTray)
+      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.panel.system-tray)
         disabledApplets
         knownApplets
         ;
@@ -26,7 +26,7 @@
       (
         { config, lib, ... }:
         let
-          inherit (config.icedos.desktop.kde.panel) systemTray;
+          systemTray = config.icedos.desktop.kde.panel.system-tray;
           disabled = lib.concatStringsSep " " systemTray.disabledApplets;
         in
         {

@@ -15,10 +15,11 @@
               { config, lib, ... }:
               let
                 inherit (desktop.users.${config.home.username}.idle)
-                  disableMonitors
                   lock
                   suspend
                   ;
+
+                disableMonitors = desktop.users.${config.home.username}.idle.disable-monitors;
 
                 inherit (lib) mkIf;
               in
