@@ -4,9 +4,9 @@
   options.icedos.desktop.kde.dynamic-workspaces =
     let
       inherit (icedosLib) mkBoolOption mkEnumOption mkIntBetweenOption;
-      inherit (lib) readFile;
+      inherit (lib) importTOML;
 
-      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.dynamic-workspaces)
+      inherit ((importTOML ./config.toml).icedos.desktop.kde.dynamic-workspaces)
         number
         orientation
         perScreen

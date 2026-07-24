@@ -3,9 +3,9 @@
 {
   options.icedos.desktop.kde.panel.system-tray =
     let
-      inherit (lib) readFile;
+      inherit (lib) importTOML;
 
-      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.panel.system-tray)
+      inherit ((importTOML ./config.toml).icedos.desktop.kde.panel.system-tray)
         disabledApplets
         knownApplets
         ;

@@ -12,9 +12,9 @@
         mkStrListOption
         ;
 
-      inherit (lib) readFile types;
+      inherit (lib) importTOML types;
 
-      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.panel)
+      inherit ((importTOML ./config.toml).icedos.desktop.kde.panel)
         autohide
         favorites
         floating

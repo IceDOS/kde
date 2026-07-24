@@ -4,9 +4,9 @@
   options.icedos.desktop.kde.no-titlebar =
     let
       inherit (icedosLib) mkStrListOption;
-      inherit (lib) readFile;
+      inherit (lib) importTOML;
 
-      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.no-titlebar)
+      inherit ((importTOML ./config.toml).icedos.desktop.kde.no-titlebar)
         excludeClasses
         ;
     in

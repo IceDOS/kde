@@ -10,9 +10,9 @@
   options.icedos.desktop.kde =
     let
       inherit (icedosLib) mkStrListOption;
-      inherit (lib) readFile;
+      inherit (lib) importTOML;
 
-      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde)
+      inherit ((importTOML ./config.toml).icedos.desktop.kde)
         excludeDefaultPackages
         ;
     in

@@ -8,9 +8,9 @@
         mkSubmoduleListOption
         ;
 
-      inherit (lib) head readFile;
+      inherit (lib) head importTOML;
 
-      inherit (head (fromTOML (readFile ./screen-edges.toml)).icedos.desktop.kde.screen-edges)
+      inherit (head (importTOML ./screen-edges.toml).icedos.desktop.kde.screen-edges)
         action
         position
         ;

@@ -4,9 +4,9 @@
   options.icedos.desktop.kde.krohnkite =
     let
       inherit (icedosLib) mkBoolOption mkIntBetweenOption;
-      inherit (lib) readFile;
+      inherit (lib) importTOML;
 
-      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.krohnkite)
+      inherit ((importTOML ./config.toml).icedos.desktop.kde.krohnkite)
         gap
         maximizeSoleTile
         ;

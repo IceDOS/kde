@@ -4,9 +4,9 @@
   options.icedos.desktop.kde.splash-screen =
     let
       inherit (icedosLib) mkStrOption;
-      inherit (lib) readFile;
+      inherit (lib) importTOML;
 
-      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.splash-screen)
+      inherit ((importTOML ./config.toml).icedos.desktop.kde.splash-screen)
         theme
         ;
     in

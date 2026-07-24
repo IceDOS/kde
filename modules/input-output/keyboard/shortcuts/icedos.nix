@@ -4,9 +4,9 @@
   options.icedos.desktop.kde.shortcuts =
     let
       inherit (icedosLib) mkAttrsOption;
-      inherit (lib) readFile;
+      inherit (lib) importTOML;
 
-      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.shortcuts)
+      inherit ((importTOML ./config.toml).icedos.desktop.kde.shortcuts)
         bindings
         hotkeys
         ;

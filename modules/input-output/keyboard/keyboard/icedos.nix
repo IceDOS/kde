@@ -4,9 +4,9 @@
   options.icedos.desktop.kde.keyboard =
     let
       inherit (icedosLib) mkEnumOption;
-      inherit (lib) readFile;
+      inherit (lib) importTOML;
 
-      inherit ((fromTOML (readFile ./config.toml)).icedos.desktop.kde.keyboard)
+      inherit ((importTOML ./config.toml).icedos.desktop.kde.keyboard)
         switchingPolicy
         ;
     in
