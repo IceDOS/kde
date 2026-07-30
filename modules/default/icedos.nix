@@ -127,6 +127,7 @@
     dependencies = [
       {
         modules = [
+          "desktop-session"
           "focus"
           "icons"
           "keyboard"
