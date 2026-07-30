@@ -1,0 +1,268 @@
+{ icedosLib, lib, ... }:
+
+{
+  options.icedos.desktop.kde.polonium =
+    let
+      inherit (icedosLib) mkEnumOption mkIntBetweenOption;
+      inherit (lib) importTOML;
+
+      inherit ((importTOML ./config.toml).icedos.desktop.kde.polonium)
+        defaultEngine
+        borders
+        tileResizeAmount
+        btreeInsertionStyle
+        gap
+        ;
+    in
+    {
+      defaultEngine =
+        mkEnumOption
+          {
+            path = "icedos.desktop.kde.polonium.defaultEngine";
+            source = ./config.toml;
+            default = defaultEngine;
+          }
+          [
+            "BTree"
+            "Half"
+            "ThreeColumn"
+            "Pillars"
+            "Pager"
+            "KWin"
+          ];
+
+      borders =
+        mkEnumOption
+          {
+            path = "icedos.desktop.kde.polonium.borders";
+            source = ./config.toml;
+            default = borders;
+          }
+          [
+            "None"
+            "Floating"
+            "Active"
+            "FloatingActive"
+            "All"
+          ];
+
+      tileResizeAmount = mkIntBetweenOption {
+        path = "icedos.desktop.kde.polonium.tileResizeAmount";
+        source = ./config.toml;
+        default = tileResizeAmount;
+      } 1 1000;
+
+      btreeInsertionStyle =
+        mkEnumOption
+          {
+            path = "icedos.desktop.kde.polonium.btreeInsertionStyle";
+            source = ./config.toml;
+            default = btreeInsertionStyle;
+          }
+          [
+            "Shallow"
+            "Dwindle"
+            "Spiral"
+          ];
+
+      gap = mkIntBetweenOption {
+        path = "icedos.desktop.kde.polonium.gap";
+        source = ./config.toml;
+        default = gap;
+      } 0 100;
+    };
+
+  outputs.nixosModules =
+    { ... }:
+    [
+      (
+        {
+          config,
+          pkgs,
+          ...
+        }:
+        let
+          inherit (config.icedos.desktop.kde.polonium)
+            defaultEngine
+            borders
+            tileResizeAmount
+            btreeInsertionStyle
+            gap
+            ;
+
+          engineMap = {
+            BTree = 0;
+            Half = 1;
+            ThreeColumn = 2;
+            Pillars = 3;
+            Pager = 4;
+            KWin = 5;
+          };
+          bordersMap = {
+            None = 0;
+            Floating = 1;
+            Active = 2;
+            FloatingActive = 3;
+            All = 4;
+          };
+          insertionMap = {
+            Shallow = 0;
+            Dwindle = 1;
+            Spiral = 2;
+          };
+
+          # KWin only re-reads tiling padding when a desktop's RootTile is
+          # created (desktopAdded) and deletes the bare [Tiling].padding
+          # fallback, so desktops created at runtime (dynamic-workspaces-omni
+          # gives each a fresh UUID) fall back to the hardcoded 4px padding.
+          # Pin rootTile.padding live via a KWin script so both the runtime
+          # layout and the saved config stay at `gap`.
+          gapPinner = pkgs.runCommandLocal "kwin-icedos-gap-pin" { } ''
+            dir="$out/share/kwin/scripts/icedos-gap-pin"
+            mkdir -p "$dir/contents/code"
+            cp ${./metadata.json} "$dir/metadata.json"
+            cp ${
+              pkgs.replaceVars ./main.js {
+                GAP = toString gap;
+              }
+            } "$dir/contents/code/main.js"
+          '';
+        in
+        {
+          environment.systemPackages = [
+            pkgs.polonium
+            gapPinner
+          ];
+
+          home-manager.sharedModules = [
+            {
+              programs.plasma = {
+                configFile.kwinrc = {
+                  Plugins.poloniumEnabled = true;
+                  Plugins."icedos-gap-pinEnabled" = true;
+
+                  "Script-polonium" = {
+                    LogLevel = 0;
+                    DefaultEngine = engineMap.${defaultEngine};
+                    Borders = bordersMap.${borders};
+                    TileResizeAmount = tileResizeAmount;
+                    BTreeInsertionStyle = insertionMap.${btreeInsertionStyle};
+                  };
+
+                  "Tiling".padding = gap;
+                };
+
+                shortcuts.kwin = {
+                  PoloniumActivateAbove = [
+                    "Meta+Up"
+                    "Meta+K"
+                    "Meta+Κ"
+                  ];
+                  PoloniumActivateBelow = [
+                    "Meta+Down"
+                    "Meta+J"
+                    "Meta+Ξ"
+                  ];
+                  PoloniumActivateLeft = [
+                    "Meta+Left"
+                    "Meta+H"
+                    "Meta+Η"
+                  ];
+                  PoloniumActivateRight = [
+                    "Meta+Right"
+                    "Meta+L"
+                    "Meta+Λ"
+                  ];
+
+                  PoloniumPlaceAbove = [
+                    "Meta+Shift+Up"
+                    "Meta+Shift+K"
+                    "Meta+Shift+Κ"
+                  ];
+                  PoloniumPlaceBelow = [
+                    "Meta+Shift+Down"
+                    "Meta+Shift+J"
+                    "Meta+Shift+Ξ"
+                  ];
+                  PoloniumPlaceLeft = [
+                    "Meta+Shift+Left"
+                    "Meta+Shift+H"
+                    "Meta+Shift+Η"
+                  ];
+                  PoloniumPlaceRight = [
+                    "Meta+Shift+Right"
+                    "Meta+Shift+L"
+                    "Meta+Shift+Λ"
+                  ];
+
+                  PoloniumResizeUp = [
+                    "Meta+Ctrl+K"
+                    "Meta+Ctrl+Κ"
+                  ];
+                  PoloniumResizeDown = [
+                    "Meta+Ctrl+J"
+                    "Meta+Ctrl+Ξ"
+                  ];
+                  PoloniumResizeLeft = [
+                    "Meta+Ctrl+H"
+                    "Meta+Ctrl+Η"
+                  ];
+                  PoloniumResizeRight = [
+                    "Meta+Ctrl+L"
+                    "Meta+Ctrl+Λ"
+                  ];
+
+                  PoloniumToggleActiveTiling = "Meta+T";
+                  PoloniumToggleSettingsMenu = "Meta+\\";
+                  PoloniumCycleEngine = "Meta+|";
+
+                  "Switch to Desktop 1" = lib.mkDefault "Meta+1";
+                  "Switch to Desktop 2" = lib.mkDefault "Meta+2";
+                  "Switch to Desktop 3" = lib.mkDefault "Meta+3";
+                  "Switch to Desktop 4" = lib.mkDefault "Meta+4";
+                  "Switch to Desktop 5" = lib.mkDefault "Meta+5";
+                  "Switch to Desktop 6" = lib.mkDefault "Meta+6";
+                  "Switch to Desktop 7" = lib.mkDefault "Meta+7";
+                  "Switch to Desktop 8" = lib.mkDefault "Meta+8";
+                  "Switch to Desktop 9" = lib.mkDefault "Meta+9";
+                  "Switch to Desktop 10" = lib.mkDefault "Meta+0";
+
+                  "Window Close" = lib.mkDefault [
+                    "Meta+Q"
+                    "Meta+;"
+                  ];
+                  "Window Fullscreen" = [
+                    "Meta+F"
+                    "Meta+Φ"
+                  ];
+
+                  "Window Maximize" = lib.mkDefault "Meta+M";
+                  "Window One Screen Up" = "Meta+Alt+Up";
+                  "Window One Screen Down" = "Meta+Alt+Down";
+                  "Window One Screen to the Left" = "Meta+Alt+Left";
+                  "Window One Screen to the Right" = "Meta+Alt+Right";
+                  "Edit Tiles" = [ ];
+                  "Window Quick Tile Top" = [ ];
+                  "Window Quick Tile Bottom" = [ ];
+                  "Window Quick Tile Left" = [ ];
+                  "Window Quick Tile Right" = [ ];
+                  "Switch Window Up" = [ ];
+                  "Switch Window Down" = [ ];
+                  "Switch Window Left" = [ ];
+                  "Switch Window Right" = [ ];
+                  "Window to Next Screen" = [ ];
+                  "Window to Previous Screen" = [ ];
+                };
+
+                # Move lock-screen off Meta+L (PoloniumActivateRight) to
+                # Ctrl+Alt+L so a keyboard lock hotkey survives.
+                shortcuts.ksmserver."Lock Session" = lib.mkDefault "Ctrl+Alt+L";
+              };
+            }
+          ];
+        }
+      )
+    ];
+
+  meta.name = "polonium";
+}

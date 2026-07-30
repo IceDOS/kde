@@ -1,0 +1,6 @@
+[icedos.desktop.kde.polonium]
+defaultEngine = "Half"
+borders = "None"
+tileResizeAmount = 10
+btreeInsertionStyle = "Shallow"
+gap = 0
