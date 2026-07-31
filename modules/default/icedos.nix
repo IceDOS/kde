@@ -36,13 +36,6 @@
           inherit (icedosLib.pkgs) mapper;
         in
         {
-          nix.settings = {
-            substituters = [ "https://cache.garnix.io" ];
-            trusted-public-keys = [
-              "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
-            ];
-          };
-
           services.desktopManager.plasma6.enable = true;
 
           # FHS apps that depend on libsecret require these libraries.
