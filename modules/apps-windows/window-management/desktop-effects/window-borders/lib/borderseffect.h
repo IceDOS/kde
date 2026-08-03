@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // IceDOS window-borders: a minimal KWin effect that draws an active/inactive
-// colored border around normal windows. The titlebar-hiding half lives in the
-// separate `no-titlebar` KWin script — this effect only draws borders.
+// colored border around normal windows.
 //
 // Mechanism (from PlasmaZones): a KWin::OutlinedBorderItem scene node parented
 // to each window's WindowItem; its color is the active or inactive color

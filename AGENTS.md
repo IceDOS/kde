@@ -39,8 +39,7 @@ checkout (`path:/abs/path/to/kde`), then `icedos rebuild --build` (no activation
 ## Notable modules / gotchas
 - Tiling/zones (`plasmazones`), `panel`, `colors-themes`, `appearance-style`, `power`.
 - KDE also ships **in-tree KWin effects/scripts** packaged as KWin plugins — e.g.
-  `no-titlebar` (JS) and `window-borders` (inline C++, stylix-accent), plus a
-  `layout-osd` script. See the core memory on KWin effect plugin paths
+  `window-borders` (inline C++, stylix-accent)
   (`lib/qt-6/plugins`, versioned ECM requirement).
 - **KWin scripts only load at session start** — you must re-login to test them; a
   `--build` won't show their runtime effect.
