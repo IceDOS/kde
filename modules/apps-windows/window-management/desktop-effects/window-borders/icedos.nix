@@ -74,6 +74,14 @@
                     "#${colors.base03}"
                   else
                     "transparent";
+
+                hasNewline = s: lib.hasInfix "\n" s || lib.hasInfix "\r" s;
+
+                # KConfig stores lists as comma-separated, escaped values;
+                # the effect reads them back via
+                # readEntry("ExcludeClasses", QStringList()). Escape `\` and `,`
+                # so entries containing them survive the round-trip.
+                escapedExclude = map (e: lib.replaceStrings [ "\\" "," ] [ "\\\\" "\\," ] e) excludeClasses;
               in
               {
                 programs.plasma.configFile.kwinrc.Plugins."icedos-window-bordersEnabled" = true;
@@ -84,9 +92,26 @@
                     BorderRadius = toString borderRadius;
                     ActiveColor = resolvedActive;
                     InactiveColor = resolvedInactive;
-                    ExcludeClasses = concatStringsSep "," excludeClasses;
+                    ExcludeClasses = concatStringsSep "," escapedExclude;
                   };
                 };
+
+                # The values above flow verbatim into the KConfig INI via
+                # generators.toINI; a newline would inject arbitrary keys.
+                assertions = [
+                  {
+                    assertion = !hasNewline resolvedActive;
+                    message = "icedos.desktop.kde.window-borders.activeColor must not contain newlines (would corrupt the KConfig file).";
+                  }
+                  {
+                    assertion = !hasNewline resolvedInactive;
+                    message = "icedos.desktop.kde.window-borders.inactiveColor must not contain newlines (would corrupt the KConfig file).";
+                  }
+                  {
+                    assertion = builtins.all (e: !hasNewline e) excludeClasses;
+                    message = "icedos.desktop.kde.window-borders.excludeClasses entries must not contain newlines (would corrupt the KConfig file).";
+                  }
+                ];
               }
             )
           ];

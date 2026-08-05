@@ -6,7 +6,9 @@
 //
 // Mechanism (from PlasmaZones): a KWin::OutlinedBorderItem scene node parented
 // to each window's WindowItem; its color is the active or inactive color
-// depending on whether the window is the focused one.
+// depending on whether the window is the focused one. A focus change recolors
+// the two affected items in place (setOutline); only structural changes (add,
+// close, desktop switch, config reload) rebuild the borders.
 
 #pragma once
 
@@ -78,6 +80,7 @@ private:
     void removeWindowBorder(KWin::EffectWindow* w);
     void clearAllBorders();
     void updateAllBorders();
+    void updateBorderColor(KWin::EffectWindow* w);
 
     // Config (~/.config/icedos-window-bordersrc, group [General]).
     QColor m_activeColor{QStringLiteral("#3daee9")};
@@ -91,6 +94,11 @@ private:
     // windowDeleted; skipped by updateAllBorders so they aren't re-bordered while
     // they animate out.
     QSet<KWin::EffectWindow*> m_closing;
+
+    // The currently-focused window, tracked so a focus change only recolors the
+    // previously- and newly-focused windows instead of rebuilding every border.
+    // QPointer self-clears if the window is destroyed.
+    QPointer<KWin::EffectWindow> m_activeWindow;
 
     KConfigWatcher::Ptr m_configWatcher;
 };

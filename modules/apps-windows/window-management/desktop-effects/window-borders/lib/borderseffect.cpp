@@ -49,6 +49,8 @@ Effect::Effect()
         watchWindow(w);
     }
 
+    m_activeWindow = KWin::effects->activeWindow();
+
     updateAllBorders();
 }
 
@@ -272,6 +274,45 @@ void Effect::updateAllBorders()
     }
 }
 
+// Recolor one window's border for a focus change without tearing anything down.
+// A transparent color means "no border in that state", so the border is removed
+// or created as needed; otherwise the existing item is recolored in place via
+// setOutline (the item's innerRect and clip radius are untouched).
+void Effect::updateBorderColor(KWin::EffectWindow* w)
+{
+    // Filter parity with updateAllBorders() and updateWindowBorder(): these
+    // windows never carry a border. Remove a stale one rather than skipping, so
+    // transitions with no cheap signal to watch (e.g. keepAbove toggled) don't
+    // leave a wrongly-colored border behind.
+    const bool eligible = w && !w->isDeleted() && !m_closing.contains(w) && w->isOnCurrentDesktop()
+        && !w->isMinimized() && !w->isFullScreen() && classify(w) != WindowKind::Ignored;
+    if (!eligible) {
+        if (w && m_windowBorders.contains(w)) {
+            removeWindowBorder(w);
+        }
+        return;
+    }
+
+    const bool focused = (w == KWin::effects->activeWindow());
+    const QColor bc = focused ? m_activeColor : m_inactiveColor;
+    auto it = m_windowBorders.find(w);
+    if (!bc.isValid() || bc.alpha() == 0) {
+        // Transparent color: only focused windows carry a border, so drop it if
+        // this one lost focus.
+        if (it != m_windowBorders.end()) {
+            removeWindowBorder(w);
+        }
+        return;
+    }
+    if (it != m_windowBorders.end() && it->item) {
+        it->item->setOutline(KWin::BorderOutline(m_borderWidth, bc, KWin::BorderRadius(m_borderRadius)));
+        return;
+    }
+    // No border yet (e.g. this window gained focus while the inactive color was
+    // transparent, so it never had one) — create it.
+    updateWindowBorder(w);
+}
+
 // ───────────────────────────── paint ──────────────────────────────────────
 
 void Effect::prePaintScreen(KWin::ScreenPrePaintData& data)
@@ -306,6 +347,10 @@ void Effect::watchWindow(KWin::EffectWindow* w)
     connect(w, &KWin::EffectWindow::windowMaximizedStateChanged, this, [this]() { updateAllBorders(); });
     connect(w, &KWin::EffectWindow::windowFullScreenChanged, this, [this]() { updateAllBorders(); });
     connect(w, &KWin::EffectWindow::windowDesktopsChanged, this, [this]() { updateAllBorders(); });
+    // keepAbove toggling changes whether a window is bordered (classify() ignores
+    // keep-above windows) but, unlike the transitions above, nothing else rebuilds
+    // borders for it — recolor just this window.
+    connect(w, &KWin::EffectWindow::windowKeepAboveChanged, this, [this, w]() { updateBorderColor(w); });
 }
 
 void Effect::slotWindowAdded(KWin::EffectWindow* w)
@@ -324,11 +369,24 @@ void Effect::slotWindowClosed(KWin::EffectWindow* w)
     updateAllBorders();
 }
 
-void Effect::slotWindowActivated(KWin::EffectWindow* /*w*/)
+void Effect::slotWindowActivated(KWin::EffectWindow* w)
 {
-    // Recreate all borders so the previously-active window flips to the inactive
-    // color and the newly-active one to the active color.
-    updateAllBorders();
+    // Steady-state focus switch: only the previous and newly-focused windows
+    // change color. Rebuilding every border on each activation (the former
+    // updateAllBorders approach) tore down and re-created every
+    // OutlinedBorderItem per focus change — jank on rapid window switching.
+    // Recolor the two affected windows in place instead.
+    KWin::EffectWindow* prev = m_activeWindow.data();
+    m_activeWindow = w;
+    if (prev == w) {
+        return; // duplicate / re-entrant activation
+    }
+    if (prev) {
+        updateBorderColor(prev);
+    }
+    if (w) {
+        updateBorderColor(w);
+    }
 }
 
 } // namespace WindowBorders

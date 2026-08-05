@@ -4,7 +4,7 @@
         "Category": "Window Management",
         "Description": "Draws active/inactive borders around windows",
         "EnabledByDefault": true,
-        "License": "GPL",
+        "License": "GPL-3.0-or-later",
         "Name": "IceDOS Window Borders"
     },
     "org.kde.kwin.effect": {
