@@ -11,13 +11,18 @@
 // Middle-removal / animation-safe technique adapted from
 // maurges/dynamic_workspaces (BSD-3-Clause).
 
-const PER_SCREEN   = @PER_SCREEN@;  // injected from icedos perScreen
-const MIN_DESKTOPS = 2;             // one real desktop + one spare; never go below
-const DEBUG        = false;         // flip true to trace reconcile in the journal
+const PER_SCREEN    = @PER_SCREEN@;  // injected from icedos perScreen
+const MIN_DESKTOPS  = 2;             // one real desktop + one spare; never go below
+const REMOVE_DELAY  = 200;           // ms to let other scripts drain before removing a desktop
+const REMOVE_MAX_DELAY = 1000;       // window churn must never starve a removal past this
+const DEBUG         = false;         // flip true to trace reconcile in the journal
 
 let busy = false;                   // our own edits re-fire signals -> guard recursion
 
 let reconcileTimer = null;          // defer pool edits out of the signal emit
+let removeTimer = null;             // deferred desktop removal (see applyRemovals)
+let removalsPending = false;        // sync-fallback intent; drained by reconcile()/applyRemovals
+let removeDeadline = 0;             // ms-epoch cap set on first request; cleared on apply
 function scheduleReconcile() {
     try {
         if (reconcileTimer === null) {
@@ -128,6 +133,55 @@ function inUseDesktops() {
     return inUse;
 }
 
+// Desktops eligible for removal: empty on all outputs, not currently viewed by
+// any output, never the trailing spare, and above the minimum count.
+function removableDesktops() {
+    if (desktops().length <= MIN_DESKTOPS) return [];
+    const inUse = inUseDesktops();
+    const last = desktops()[desktops().length - 1];
+    return desktops().slice().filter(d =>
+        inUse.indexOf(d) === -1 && d !== last && isEmpty(d));
+}
+
+function scheduleRemovals() {
+    try {
+        if (removeTimer === null) {
+            removeTimer = new QTimer();
+            removeTimer.singleShot = true;
+            removeTimer.interval = 0;
+            removeTimer.timeout.connect(applyRemovals);
+        }
+        const now = Date.now();
+        if (removeDeadline === 0) removeDeadline = now + REMOVE_MAX_DELAY;
+        removeTimer.start(Math.max(0, Math.min(REMOVE_DELAY, removeDeadline - now)));
+    } catch (e) {
+        log("QTimer unavailable, removals pending:", e);
+        removalsPending = true;     // reconcile()'s finally drains it after busy clears
+    }
+}
+
+// Removing a desktop destroys its object. Other KWin scripts (Polonium) may
+// still hold that desktop in a queued desktopsChanged event; if it is destroyed
+// before they process it, the window drops out of tiling and ends up floating.
+// Defer removals until the event queues have drained.
+function applyRemovals() {
+    if (busy) { removalsPending = true; return; }  // reconcile's finally drains it
+    removeDeadline = 0;
+    removalsPending = false;
+    busy = true;
+    let removed = 0;
+    try {
+        removableDesktops().forEach(d => {
+            if (desktops().length <= MIN_DESKTOPS) return;   // re-check floor per removal
+            try { workspace.removeDesktop(d); removed++; }
+            catch (e) { log("remove failed:", e); }
+        });
+    } finally {
+        busy = false;
+    }
+    if (removed > 0) scheduleReconcile();   // after busy clears, so the sync fallback isn't swallowed
+}
+
 function reconcile() {
     if (busy) return;
     busy = true;
@@ -137,16 +191,7 @@ function reconcile() {
             catch (e) { log("compaction error, global-only:", e); }
         }
 
-        const inUse = inUseDesktops();
-        const last = desktops()[desktops().length - 1];   // trailing spare
-        const removed = [];
-        desktops().slice().forEach(d => {
-            if (inUse.indexOf(d) === -1 && d !== last &&
-                isEmpty(d) && desktops().length > MIN_DESKTOPS) {
-                removed.push(d.name);
-                workspace.removeDesktop(d);
-            }
-        });
+        if (removableDesktops().length) scheduleRemovals();
 
         let all = desktops();
         if (!isEmpty(all[all.length - 1])) {
@@ -159,9 +204,17 @@ function reconcile() {
             if (all[i].name !== want) all[i].name = want;
         }
 
-        if (DEBUG) log("removed=[" + removed.join(",") + "] count=" + desktops().length);
+        if (DEBUG) log("pending removals=" + removableDesktops().length +
+            " count=" + desktops().length);
     } finally {
         busy = false;
+        // Only the QTimer-failure path, a defensive busy-guard hit, or an
+        // elapsed deadline lands here; it bypasses REMOVE_DELAY by design —
+        // everything is already degraded.
+        if (removalsPending) {
+            try { applyRemovals(); }
+            catch (e) { log("removal drain failed:", e); }
+        }
     }
 }
 
