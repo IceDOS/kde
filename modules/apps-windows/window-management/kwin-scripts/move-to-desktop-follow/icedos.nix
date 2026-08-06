@@ -7,12 +7,20 @@
       (
         { pkgs, lib, ... }:
         let
-          script = pkgs.runCommandLocal "kwin-move-to-desktop-follow" { } ''
-            dir="$out/share/kwin/scripts/move-to-desktop-follow"
-            mkdir -p "$dir/contents/code"
-            cp ${./metadata.json} "$dir/metadata.json"
-            cp ${./main.js} "$dir/contents/code/main.js"
-          '';
+          script =
+            pkgs.runCommandLocal "kwin-move-to-desktop-follow"
+              {
+                meta = {
+                  description = "Move the active window to desktop N and follow it there";
+                  license = lib.licenses.mit;
+                };
+              }
+              ''
+                dir="$out/share/kwin/scripts/move-to-desktop-follow"
+                mkdir -p "$dir/contents/code"
+                cp ${./metadata.json} "$dir/metadata.json"
+                cp ${./main.js} "$dir/contents/code/main.js"
+              '';
         in
         {
           environment.systemPackages = [ script ];

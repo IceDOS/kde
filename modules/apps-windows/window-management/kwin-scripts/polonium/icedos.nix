@@ -117,16 +117,24 @@
           # gives each a fresh UUID) fall back to the hardcoded 4px padding.
           # Pin rootTile.padding live via a KWin script so both the runtime
           # layout and the saved config stay at `gap`.
-          gapPinner = pkgs.runCommandLocal "kwin-icedos-gap-pin" { } ''
-            dir="$out/share/kwin/scripts/icedos-gap-pin"
-            mkdir -p "$dir/contents/code"
-            cp ${./metadata.json} "$dir/metadata.json"
-            cp ${
-              pkgs.replaceVars ./main.js {
-                GAP = toString gap;
+          gapPinner =
+            pkgs.runCommandLocal "kwin-icedos-gap-pin"
+              {
+                meta = {
+                  description = "IceDOS KWin script pinning rootTile padding";
+                  license = lib.licenses.mit;
+                };
               }
-            } "$dir/contents/code/main.js"
-          '';
+              ''
+                dir="$out/share/kwin/scripts/icedos-gap-pin"
+                mkdir -p "$dir/contents/code"
+                cp ${./metadata.json} "$dir/metadata.json"
+                cp ${
+                  pkgs.replaceVars ./main.js {
+                    GAP = toString gap;
+                  }
+                } "$dir/contents/code/main.js"
+              '';
         in
         {
           environment.systemPackages = [

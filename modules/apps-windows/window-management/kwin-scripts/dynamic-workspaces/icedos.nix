@@ -50,16 +50,25 @@
             perScreen
             ;
 
-          script = pkgs.runCommandLocal "kwin-dynamic-workspaces-omni" { } ''
-            dir="$out/share/kwin/scripts/dynamic-workspaces-omni"
-            mkdir -p "$dir/contents/code"
-            cp ${./metadata.json} "$dir/metadata.json"
-            cp ${
-              pkgs.replaceVars ./main.js {
-                PER_SCREEN = if perScreen then "true" else "false";
+          script =
+            pkgs.runCommandLocal "kwin-dynamic-workspaces-omni"
+              {
+                meta = {
+                  description = "Omnidirectional dynamic workspaces KWin script";
+                  # main.js is adapted from maurges/dynamic_workspaces (BSD-3-Clause).
+                  license = lib.licenses.bsd3;
+                };
               }
-            } "$dir/contents/code/main.js"
-          '';
+              ''
+                dir="$out/share/kwin/scripts/dynamic-workspaces-omni"
+                mkdir -p "$dir/contents/code"
+                cp ${./metadata.json} "$dir/metadata.json"
+                cp ${
+                  pkgs.replaceVars ./main.js {
+                    PER_SCREEN = if perScreen then "true" else "false";
+                  }
+                } "$dir/contents/code/main.js"
+              '';
         in
         {
           environment.systemPackages = [ script ];

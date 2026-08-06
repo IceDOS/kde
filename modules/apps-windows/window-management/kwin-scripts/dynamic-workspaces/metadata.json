@@ -5,7 +5,7 @@
     "Name": "Omnidirectional Dynamic Workspaces",
     "Description": "Keeps one empty trailing desktop and compacts empty desktops in any direction",
     "Version": "1.1",
-    "License": "MIT",
+    "License": "BSD-3-Clause",
     "EnabledByDefault": true
   },
   "X-Plasma-API": "javascript",
