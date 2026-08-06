@@ -24,7 +24,18 @@
           isPath = !isColor && globalWallpaper != "";
           wallpaperPath = removePrefix "path:" globalWallpaper;
           colorHex = removePrefix "color:" globalWallpaper;
-          plainColor = concatStringsSep "," (map toString (icedosLib.color.hexToRgbInts colorHex));
+
+          # Accept "RRGGBB" and "#RRGGBB" (hexToRgbInts strips the "#" itself).
+          validColor = builtins.match "#?[0-9a-fA-F]{6}" colorHex != null;
+
+          plainColor = concatStringsSep "," (
+            map toString (
+              if validColor then
+                icedosLib.color.hexToRgbInts colorHex
+              else
+                throw "icedos.desktop.wallpaper: color: expected RRGGBB or #RRGGBB, got \"${colorHex}\""
+            )
+          );
         in
         {
           home-manager.sharedModules = [
