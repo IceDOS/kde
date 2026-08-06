@@ -61,6 +61,7 @@
                     changed=0
                     ids=$(qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'var o=[];panels().forEach(function(p){p.widgets("org.kde.plasma.systemtray").forEach(function(w){o.push(p.id+":"+w.id);});});print(o.join(" "));' 2>/dev/null)
 
+                    set -f
                     for pair in $ids; do
                       cid=''${pair%%:*}
                       aid=''${pair##*:}
@@ -101,8 +102,15 @@
                         changed=1
                       fi
                     done
+                    set +f
 
-                    [ "$changed" = 1 ] && echo plasma-plasmashell >> ${config.xdg.dataHome}/plasma-manager/services_to_restart
+                    if [ "$changed" = 1 ]; then
+                      rf=${config.xdg.dataHome}/plasma-manager/services_to_restart
+                      case "$(cat "$rf" 2>/dev/null)" in
+                        *plasma-plasmashell*) : ;;
+                        *) echo plasma-plasmashell >> "$rf" ;;
+                      esac
+                    fi
                     true
                   '';
                 };

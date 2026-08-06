@@ -136,6 +136,7 @@
                     changed=0
                     ids=$(qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'print(panels().map(function(p){return p.id;}).join(" "))' 2>/dev/null)
 
+                    set -f
                     for id in $ids; do
                       [ -n "$id" ] || continue
                       cur=$(kreadconfig6 --file plasmashellrc --group PlasmaViews --group "Panel $id" --key panelOpacity)
@@ -144,8 +145,15 @@
                         changed=1
                       fi
                     done
+                    set +f
 
-                    [ "$changed" = 1 ] && echo plasma-plasmashell >> ${config.xdg.dataHome}/plasma-manager/services_to_restart
+                    if [ "$changed" = 1 ]; then
+                      rf=${config.xdg.dataHome}/plasma-manager/services_to_restart
+                      case "$(cat "$rf" 2>/dev/null)" in
+                        *plasma-plasmashell*) : ;;
+                        *) echo plasma-plasmashell >> "$rf" ;;
+                      esac
+                    fi
                     true
                   '';
                 };
