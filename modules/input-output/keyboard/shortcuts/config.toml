@@ -7,6 +7,8 @@
 [icedos.desktop.kde.shortcuts.bindings]
 
 # Custom command hotkeys: each entry runs a shell command on keypress.
+# ⚠ These execute arbitrary shell as the invoking user on every keypress —
+# code execution by design; only bind commands you trust.
 # Shape: name -> { command, key = "..." (or keys = [...]), comment = "..." }.
 # Flows to programs.plasma.hotkeys.commands. Example:
 #   [icedos.desktop.kde.shortcuts.hotkeys.launch-terminal]

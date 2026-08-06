@@ -40,6 +40,16 @@
 
           # FHS apps that depend on libsecret require these libraries.
           # GNOME injects these libraries to the login session.
+          #
+          # Kept session-wide on purpose: some FHS apps (e.g. Signal) ship with a
+          # bundled glib but no libsecret, and would miss the keyring otherwise.
+          # The paths are read-only, content-addressed nix store outputs, so the
+          # LD_LIBRARY_PATH hijack vector (a writable dir winning library
+          # resolution) does not apply here. The trade-off is blast radius: every
+          # graphical session process inherits these dirs, so an app that bundles
+          # its own glib could load this system glib instead (ABI shadowing).
+          # Scoping to per-app wrappers instead is possible but adds moving
+          # parts; the read-only store paths keep this variant safe.
           environment.sessionVariables.LD_LIBRARY_PATH = [
             "${pkgs.glib.out}/lib"
             "${pkgs.libsecret}/lib"
