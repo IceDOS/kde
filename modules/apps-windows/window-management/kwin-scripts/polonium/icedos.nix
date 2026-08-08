@@ -73,7 +73,7 @@
     };
 
   outputs.nixosModules =
-    { ... }:
+    { repoUrl, ... }:
     [
       (
         {
@@ -140,10 +140,11 @@
           # removed out from under Polonium's queued desktopsChanged events,
           # which in practice only dynamic-workspaces does (it auto-removes
           # empty desktops). Without dynamic-workspaces loaded, ship stock
-          # polonium untouched. The option path only exists when the
-          # dynamic-workspaces module is part of this config, so its presence
-          # is the enable signal.
-          useDynamicWorkspaces = (config.icedos.desktop.kde.dynamic-workspaces or null) != null;
+          # polonium untouched.
+          useDynamicWorkspaces = icedosLib.hasModule {
+            inherit config repoUrl;
+            name = "dynamic-workspaces";
+          };
 
           # Polonium's evUpdateWindow, verbatim from the packaged main.mjs
           # (polonium 1.2.1). When the desktop a window just left is removed

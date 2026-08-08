@@ -143,9 +143,7 @@
           "window-decorations"
         ];
       }
-    ];
 
-    optionalDependencies = [
       {
         url = "github:icedos/desktop";
         modules = [ "plm" ];

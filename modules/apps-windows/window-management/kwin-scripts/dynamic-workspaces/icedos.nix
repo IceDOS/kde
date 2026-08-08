@@ -2,10 +2,6 @@
 
 {
   options.icedos.desktop.kde.dynamic-workspaces =
-    # NOTE: polonium/icedos.nix keys its evUpdateWindow patch off this option
-    # path existing (config.icedos.desktop.kde.dynamic-workspaces or null !=
-    # null). If this root path is ever renamed, update that check too — it
-    # degrades to stock polonium silently otherwise.
     let
       inherit (icedosLib) mkBoolOption mkEnumOption mkIntBetweenOption;
       inherit (lib) importTOML;
