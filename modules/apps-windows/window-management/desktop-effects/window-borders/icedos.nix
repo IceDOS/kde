@@ -57,30 +57,15 @@
               let
                 inherit (lib) concatStringsSep generators;
 
-                colors = config.lib.stylix.colors or { };
+                colors = config.lib.stylix.colors;
 
-                resolvedActive =
-                  if activeColor != "" then
-                    activeColor
-                  else if colors ? base0D then
-                    "#${colors.base0D}"
-                  else
-                    "#3daee9";
-
-                resolvedInactive =
-                  if inactiveColor != "" then
-                    inactiveColor
-                  else if colors ? base03 then
-                    "#${colors.base03}"
-                  else
-                    "transparent";
+                resolvedActive = if activeColor != "" then activeColor else "#${colors.base0D}";
+                resolvedInactive = if inactiveColor != "" then inactiveColor else "#${colors.base03}";
 
                 hasNewline = s: lib.hasInfix "\n" s || lib.hasInfix "\r" s;
 
-                # KConfig stores lists as comma-separated, escaped values;
-                # the effect reads them back via
-                # readEntry("ExcludeClasses", QStringList()). Escape `\` and `,`
-                # so entries containing them survive the round-trip.
+                # KConfig round-trips lists via escaped, comma-separated values;
+                # escape `\` and `,` so entries survive.
                 escapedExclude = map (e: lib.replaceStrings [ "\\" "," ] [ "\\\\" "\\," ] e) excludeClasses;
               in
               {
