@@ -1,10 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-#
-# Inline build of the IceDOS window-borders KWin effect plugin.
-#
-# Built against the host's kdePackages.kwin (the running KWin), so the plugin's
-# IID matches and KWin loads it. ECM's default plugin dir (lib/qt-6/plugins) is
-# exactly where this-nixpkgs KWin scans its own effects — no path override.
+# Inline KWin effect plugin built against host's kdePackages.kwin.
 
 {
   lib,

@@ -38,18 +38,8 @@
         {
           services.desktopManager.plasma6.enable = true;
 
-          # FHS apps that depend on libsecret require these libraries.
-          # GNOME injects these libraries to the login session.
-          #
-          # Kept session-wide on purpose: some FHS apps (e.g. Signal) ship with a
-          # bundled glib but no libsecret, and would miss the keyring otherwise.
-          # The paths are read-only, content-addressed nix store outputs, so the
-          # LD_LIBRARY_PATH hijack vector (a writable dir winning library
-          # resolution) does not apply here. The trade-off is blast radius: every
-          # graphical session process inherits these dirs, so an app that bundles
-          # its own glib could load this system glib instead (ABI shadowing).
-          # Scoping to per-app wrappers instead is possible but adds moving
-          # parts; the read-only store paths keep this variant safe.
+          # FHS apps (e.g. Signal) ship bundled glib without libsecret; add the
+          # store paths session-wide (read-only, so no LD_LIBRARY_PATH hijack).
           environment.sessionVariables.LD_LIBRARY_PATH = [
             "${pkgs.glib.out}/lib"
             "${pkgs.libsecret}/lib"
@@ -87,24 +77,16 @@
 
                 programs.plasma.enable = true;
 
-                # Stylix's KDE look-and-feel activation (upstream stylix
-                # modules/kde/hm.nix `stylixLookAndFeel`) and plasma-manager's
-                # run_all.sh both call plasma-apply-lookandfeel from the systemd
-                # home-manager activation service, whose env lacks XDG_MENU_PREFIX.
-                # plasma-workspace ships only `plasma-applications.menu`, so
-                # without the prefix plasma-apply searches for the unprefixed
-                # `applications.menu` and logs a not-found warning. Export it
-                # before those entries (same activation shell) so the menu
-                # resolves.
+                # plasma-apply-lookandfeel (stylix + plasma-manager activations)
+                # needs XDG_MENU_PREFIX to find plasma-applications.menu.
                 home.activation.icedosXdgMenuPrefix =
                   lib.hm.dag.entryBefore [ "stylixLookAndFeel" "icedosPlasmaApply" ]
                     ''
                       export XDG_MENU_PREFIX="plasma-"
                     '';
 
-                # plasma-manager only applies its panel/theme/wallpaper desktop
-                # scripts at login (autostart -> run_all.sh). Run run_all.sh on every
-                # rebuild too, best-effort, so changes land without a relogin.
+                # run_all.sh runs at login; re-run it on every rebuild so
+                # panel/theme changes land without a relogin.
                 home.activation.icedosPlasmaApply = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
                   rd="/run/user/$(${pkgs.coreutils}/bin/id -u)"
                   bus="$rd/bus"

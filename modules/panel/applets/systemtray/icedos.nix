@@ -14,9 +14,8 @@
       # Full set of tray applets the framework manages (plasma's knownItems).
       knownApplets = icedosLib.mkStrListOption { default = knownApplets; };
 
-      # Applet plugin IDs (e.g. "org.kde.plasma.clipboard") removed from the
-      # enabled set (extraItems) while kept in knownItems — plasma's
-      # "Never show (disabled)" entry state.
+      # Applet plugin IDs removed from enabled set but kept in knownItems
+      # (plasma's "Never show (disabled)" state).
       disabledApplets = icedosLib.mkStrListOption { default = disabledApplets; };
     };
 
@@ -43,15 +42,8 @@
               { config, ... }:
 
               {
-                # plasma-manager (post-#501) can't keep tray item visibility in
-                # plasma 6.4's nested containment (upstream plasma-manager #535), and
-                # forcing extraItems re-enables disabled applets on every run_all.
-                # Instead subtract disabledApplets from the live extraItems straight in
-                # appletsrc — keyed by the runtime systray applet id, like the
-                # panel-opacity workaround — and let the single run_all plasmashell
-                # restart reload it. runAlways re-fires every rebuild (ignores
-                # restartServices, hence the manual services_to_restart queue);
-                # idempotent: a no-op once converged and when disabledApplets is empty.
+                # plasma-manager can't keep tray visibility in plasma 6.4 nested
+                # containment (#535). Subtract disabled applets from live extraItems.
                 programs.plasma.startup.startupScript."icedos_systemtray" = {
                   priority = 3;
                   runAlways = true;

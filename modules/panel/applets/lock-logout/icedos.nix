@@ -1,9 +1,8 @@
 { ... }:
 
 {
-  # Power/session applet. Not in the shipped default layout — kept as a module
-  # so adding "org.kde.plasma.lock_logout" to `widgets` in config.toml restores
-  # it with these settings (lock entry hidden, full session-action order).
+  # Not in default layout; kept so adding lock_logout to `widgets` in
+  # config.toml restores these settings.
   outputs.nixosModules =
     { ... }:
     [

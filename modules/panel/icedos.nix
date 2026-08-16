@@ -119,15 +119,8 @@
                   }
                 ];
 
-                # plasma-manager applies panel opacity only via the `panel.opacity`
-                # desktop-scripting property, which never reaches the live PanelView,
-                # so panelOpacity is never written to plasmashellrc and the panel stays
-                # "adaptive" (upstream plasma-manager #551). Write panelOpacity directly
-                # for the live panels, keyed by their runtime containment id. Runs inside
-                # run_all after the panel-creation script (priority 2); the single
-                # plasmashell restart at the end of run_all applies it. runAlways so it
-                # re-fires when panel ids change (runAlways ignores restartServices, hence
-                # the manual services_to_restart queue), idempotent otherwise.
+                # plasma-manager's desktop-scripting property never reaches live
+                # PanelView (#551). Write panelOpacity directly by containment id.
                 programs.plasma.startup.startupScript."icedos_panel_opacity" = {
                   priority = 3;
                   runAlways = true;

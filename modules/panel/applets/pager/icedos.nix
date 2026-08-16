@@ -1,10 +1,8 @@
 { ... }:
 
 {
-  # Numbers-only pager. Not in the shipped default layout (kickoff takes the
-  # leading slot) — kept as a module so adding "org.kde.plasma.pager" to
-  # `widgets` in config.toml restores it with these settings. The dynamic
-  # add/remove of desktops still comes from the dynamic_workspaces script.
+  # Not in default layout; kept so adding pager to `widgets` in config.toml
+  # restores these settings. Desktop add/remove comes from dynamic_workspaces.
   outputs.nixosModules =
     { ... }:
     [

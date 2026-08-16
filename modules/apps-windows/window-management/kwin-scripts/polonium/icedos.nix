@@ -111,12 +111,8 @@
             Spiral = 2;
           };
 
-          # KWin only re-reads tiling padding when a desktop's RootTile is
-          # created (desktopAdded) and deletes the bare [Tiling].padding
-          # fallback, so desktops created at runtime (dynamic-workspaces-omni
-          # gives each a fresh UUID) fall back to the hardcoded 4px padding.
-          # Pin rootTile.padding live via a KWin script so both the runtime
-          # layout and the saved config stay at `gap`.
+          # KWin only pins padding on RootTile creation; runtime desktops
+          # fall back to 4px. Pin padding live so the gap setting sticks.
           gapPinner =
             pkgs.runCommandLocal "kwin-icedos-gap-pin"
               {
@@ -136,39 +132,8 @@
                 } "$dir/contents/code/main.js"
               '';
 
-          # IceDOS polonium patches, applied unconditionally on top of stock
-          # polonium 1.2.1 (the Half-engine phantom-window bug below is stock
-          # polonium, not specific to dynamic-workspaces):
-          #
-          # 1. evUpdateWindow (dynamic-workspaces race): when the desktop a
-          #    window just left is removed before Polonium processes its queued
-          #    desktopsChanged event (our dynamic-workspaces script defers
-          #    removals, but any desktop churn can race), getDriver() can't
-          #    resolve the old display because the desktop object is gone —
-          #    either its QObject is destroyed (desktop.id is undefined) or it
-          #    has been dropped from the live workspace.desktops list — and
-          #    Polonium silently untiles the moved window. Only in that case do
-          #    we assume the window was tiled — gated on the handler's own
-          #    wantsTiled so genuinely floating windows are never force-tiled
-          #    — and it stays tiled on the new desktop.
-          #
-          # 2. Half-engine phantom window (stock polonium): BTreeEngine guards
-          #    duplicate adds with windowSet, but HalfEngine has no equivalent
-          #    — tileWindow, placeWindow and placeWindowPoint can all reach
-          #    engine.addWindow while the window is already tiled, and
-          #    HalfEngine.placeWindow calls addWindow for any tile it does not
-          #    know (e.g. a stale persisted kwin tile). A second box for the
-          #    same window renders as an EMPTY tile: KWin can only manage a
-          #    window into one tile, the other box stays boxed but windowless,
-          #    permanently hogging space. The windowMap-side prune in
-          #    buildLayout cannot see it (the engine window still maps to a
-          #    live kwin window), removeWindow only splices the first box, and
-          #    KWin persists the empty tile in kwinrc, so the phantom survives
-          #    reloads and reboots. Fix: skip duplicate adds, remove the window
-          #    from both sides, and self-heal orphans/duplicates during
-          #    buildLayout. Drop this patch if/once fixed upstream;
-          #    --replace-fail breaks the build loudly if a polonium bump
-          #    reshapes a block.
+          # Polonium 1.2.1 patches: prevent cross-desktop un-tiling and
+          # fix Half-engine phantom window via duplicate guard + self-heal.
           poloniumPatchOld = "      const driver = this.getDriver(oldDisplay);\n      if (driver === void 0) {\n        continue;\n      }\n      if (driver.isWindowTiled(window)) {\n        tiled = true;\n      }";
           poloniumPatchNew = "      const driver = this.getDriver(oldDisplay);\n      if (driver === void 0) {\n        if ((oldDisplay.desktop?.id === void 0 || !this.workspace.desktops.includes(oldDisplay.desktop)) && this.windowHandlers.get(window)?.wantsTiled) {\n          tiled = true;\n        }\n        continue;\n      }\n      if (driver.isWindowTiled(window)) {\n        tiled = true;\n      }";
           halfAddWindowOld = "  addWindow(window, tile, direction) {\n    if (this.settings.insertInActive && tile !== void 0) {\n      this.placeWindow(window, tile, direction);\n      return;\n    }\n    if (!this.settings.swapInsertSide) {";
