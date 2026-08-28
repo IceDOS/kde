@@ -1,17 +1,6 @@
-# Rebind Plasma / KWin / global shortcuts. Shape: group -> action -> key.
-# Value is a string, a list of strings (multiple bindings), or [] to unbind.
-# Flows verbatim to programs.plasma.shortcuts. Example:
-#   [icedos.desktop.kde.shortcuts.bindings.kwin]
-#   "Overview" = "Meta+W"
-#   "Window Maximize" = ["Meta+Up", "Meta+PgUp"]
+# Rebind shortcuts: group -> action -> key (string, list, or [] to unbind).
 [icedos.desktop.kde.shortcuts.bindings]
 
-# Custom command hotkeys: each entry runs a shell command on keypress.
-# ⚠ These execute arbitrary shell as the invoking user on every keypress —
-# code execution by design; only bind commands you trust.
+# Command hotkeys — arbitrary shell on keypress; bind only commands you trust.
 # Shape: name -> { command, key = "..." (or keys = [...]), comment = "..." }.
-# Flows to programs.plasma.hotkeys.commands. Example:
-#   [icedos.desktop.kde.shortcuts.hotkeys.launch-terminal]
-#   command = "konsole"
-#   key = "Meta+Return"
 [icedos.desktop.kde.shortcuts.hotkeys]

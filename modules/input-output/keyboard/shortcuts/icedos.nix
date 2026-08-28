@@ -22,6 +22,7 @@
       (
         { config, ... }:
         let
+          # Hotkey display name defaults to the attribute key.
           inherit (config.icedos.desktop.kde.shortcuts) bindings hotkeys;
         in
         {
@@ -29,12 +30,6 @@
             {
               programs.plasma.shortcuts = bindings;
               programs.plasma.hotkeys.commands = hotkeys;
-
-              # Walker never sends startup-notification "remove"; suppress
-              # KDE busy-cursor feedback for command-hotkey popup launches.
-              xdg.desktopEntries = lib.optionalAttrs (hotkeys != { }) {
-                "plasma-manager-commands".startupNotify = false;
-              };
             }
           ];
         }
