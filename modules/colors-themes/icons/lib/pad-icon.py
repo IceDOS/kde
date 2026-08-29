@@ -16,7 +16,8 @@ import sys
 scale = float(sys.argv[1])
 src, dst = sys.argv[2], sys.argv[3]
 
-svg = open(src, encoding="utf-8").read()
+with open(src, encoding="utf-8") as fh:
+    svg = fh.read()
 m = re.search(r"<svg\b[^>]*>", svg)
 if m is None:
     raise SystemExit(f"no <svg> tag in {src}")
@@ -45,4 +46,5 @@ if viewbox:
 else:
     new_tag = tag[:-1].rstrip() + f' viewBox="{new_viewbox}">'
 
-open(dst, "w", encoding="utf-8").write(svg.replace(tag, new_tag, 1))
+with open(dst, "w", encoding="utf-8") as fh:
+    fh.write(svg.replace(tag, new_tag, 1))
