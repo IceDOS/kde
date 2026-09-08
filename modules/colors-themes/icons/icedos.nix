@@ -4,60 +4,67 @@
   outputs.nixosModules =
     { ... }:
     [
-      {
-        home-manager.sharedModules = [
-          (
-            { config, pkgs, ... }:
-            let
-              inherit (config) stylix;
+      (
+        { config, ... }:
+        {
+          icedos.system.tips.list = lib.optionals (config.icedos.desktop.stylix.iconTheme.enable or false) [
+            "Your icons follow the theme and swap between the light and dark set on their own."
+          ];
 
-              iconTheme = if stylix.polarity == "light" then stylix.icons.light else stylix.icons.dark;
+          home-manager.sharedModules = [
+            (
+              { config, pkgs, ... }:
+              let
+                inherit (config) stylix;
 
-              # Tela tray icons are edge-to-edge (oversized under scaleIconsToFit);
-              # inset each by 0.875 via pad-icon.py (viewBox rewrite).
-              paddedIcons =
-                map
-                  (name: {
-                    subdir = "status";
-                    inherit name;
-                  })
-                  [
-                    "microphone-sensitivity-high-symbolic"
-                    "microphone-sensitivity-low-symbolic"
-                    "microphone-sensitivity-medium-symbolic"
-                    "microphone-sensitivity-muted-symbolic"
-                    "microphone-sensitivity-none-symbolic"
-                    "notifications-disabled-symbolic"
-                    "notifications-new-symbolic"
-                    "notifications-symbolic"
-                  ];
+                iconTheme = if stylix.polarity == "light" then stylix.icons.light else stylix.icons.dark;
 
-              paddedTelaIcons =
-                pkgs.runCommandLocal "tela-padded-icons" { nativeBuildInputs = [ pkgs.python3 ]; }
-                  (
-                    lib.concatMapStringsSep "\n" (icon: ''
-                      mkdir -p "$out/symbolic/${icon.subdir}"
-                      python3 ${./lib/pad-icon.py} 0.875 \
-                        "${pkgs.tela-icon-theme}/share/icons/${iconTheme}/symbolic/${icon.subdir}/${icon.name}.svg" \
-                        "$out/symbolic/${icon.subdir}/${icon.name}.svg"
-                    '') paddedIcons
-                  );
+                # Tela tray icons are edge-to-edge (oversized under scaleIconsToFit);
+                # inset each by 0.875 via pad-icon.py (viewBox rewrite).
+                paddedIcons =
+                  map
+                    (name: {
+                      subdir = "status";
+                      inherit name;
+                    })
+                    [
+                      "microphone-sensitivity-high-symbolic"
+                      "microphone-sensitivity-low-symbolic"
+                      "microphone-sensitivity-medium-symbolic"
+                      "microphone-sensitivity-muted-symbolic"
+                      "microphone-sensitivity-none-symbolic"
+                      "notifications-disabled-symbolic"
+                      "notifications-new-symbolic"
+                      "notifications-symbolic"
+                    ];
 
-              iconOverride = lib.listToAttrs (
-                map (icon: {
-                  name = ".local/share/icons/${iconTheme}/symbolic/${icon.subdir}/${icon.name}.svg";
-                  value.source = "${paddedTelaIcons}/symbolic/${icon.subdir}/${icon.name}.svg";
-                }) paddedIcons
-              );
-            in
-            lib.mkIf stylix.icons.enable {
-              programs.plasma.workspace.iconTheme = iconTheme;
+                paddedTelaIcons =
+                  pkgs.runCommandLocal "tela-padded-icons" { nativeBuildInputs = [ pkgs.python3 ]; }
+                    (
+                      lib.concatMapStringsSep "\n" (icon: ''
+                        mkdir -p "$out/symbolic/${icon.subdir}"
+                        python3 ${./lib/pad-icon.py} 0.875 \
+                          "${pkgs.tela-icon-theme}/share/icons/${iconTheme}/symbolic/${icon.subdir}/${icon.name}.svg" \
+                          "$out/symbolic/${icon.subdir}/${icon.name}.svg"
+                      '') paddedIcons
+                    );
 
-              home.file = lib.mkIf (lib.hasPrefix "Tela" iconTheme) iconOverride;
-            }
-          )
-        ];
-      }
+                iconOverride = lib.listToAttrs (
+                  map (icon: {
+                    name = ".local/share/icons/${iconTheme}/symbolic/${icon.subdir}/${icon.name}.svg";
+                    value.source = "${paddedTelaIcons}/symbolic/${icon.subdir}/${icon.name}.svg";
+                  }) paddedIcons
+                );
+              in
+              lib.mkIf stylix.icons.enable {
+                programs.plasma.workspace.iconTheme = iconTheme;
+
+                home.file = lib.mkIf (lib.hasPrefix "Tela" iconTheme) iconOverride;
+              }
+            )
+          ];
+        }
+      )
     ];
 
   meta.name = "icons";

@@ -169,6 +169,20 @@
             gapPinner
           ];
 
+          icedos.system.tips.list = [
+            "Meta+T tiles or untiles the window you are using, so it shares the screen instead of covering it."
+            "Meta with an arrow key jumps between tiled windows; add Shift to move the window itself."
+            "Meta+\\ opens the tiling menu, where you pick a different layout for this desktop."
+            "Meta+Q closes the window you are using and Meta+F makes it fill the screen."
+            "Meta+L is taken by tiling, so the screen locks with Ctrl+Alt+L instead."
+          ]
+          ++ lib.optionals (gap == 0) [
+            "Put space between tiled windows with gap under [icedos.desktop.kde.polonium]."
+          ]
+          ++ lib.optionals (gap > 0) [
+            "The space between tiled windows comes from gap under [icedos.desktop.kde.polonium]."
+          ];
+
           home-manager.sharedModules = [
             {
               programs.plasma = {

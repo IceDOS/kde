@@ -29,6 +29,13 @@
           disabled = lib.concatStringsSep " " systemTray.disabledApplets;
         in
         {
+          icedos.system.tips.list = [
+            "Disable a tray applet by listing it in disabledApplets under [icedos.desktop.kde.panel.system-tray]."
+          ]
+          ++ lib.optionals (systemTray.disabledApplets != [ ]) [
+            "Tray applets you hid still show up in the tray's popup menu, so you can look for them there."
+          ];
+
           icedos.desktop.kde.panel.applets."org.kde.plasma.systemtray" = {
             name = "org.kde.plasma.systemtray";
             config.General = {

@@ -8,9 +8,17 @@
         { config, lib, ... }:
         let
           inherit (config.icedos.desktop.kde.panel) favorites;
-          inherit (lib) mkIf removeSuffix;
+          inherit (lib) mkIf optionals removeSuffix;
         in
         {
+          icedos.system.tips.list =
+            optionals (favorites != [ ]) [
+              "The apps pinned in your panel come from favorites under [icedos.desktop.kde.panel]."
+            ]
+            ++ optionals (favorites == [ ]) [
+              "Pin an app by dragging it onto the panel, or list it in favorites under [icedos.desktop.kde.panel]."
+            ];
+
           # Only manage the pinned launchers when favorites are set. An empty
           # list leaves the key unmanaged so hand-placed pins are preserved.
           icedos.desktop.kde.panel.applets = mkIf (favorites != [ ]) {

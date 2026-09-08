@@ -22,11 +22,22 @@
         let
           inherit (config.icedos.desktop) kde windows;
           inherit (kde.window-behavior.focus) separateScreenFocus;
-          inherit (lib) optionalAttrs;
+          inherit (lib) optionalAttrs optionals;
           inherit (windows) focus;
           inherit (focus) delay followsMouse;
         in
         {
+          icedos.system.tips.list =
+            optionals followsMouse [
+              "A window takes focus once the mouse rests on it; the wait is delay under [icedos.desktop.windows.focus]."
+            ]
+            ++ optionals (!followsMouse) [
+              "Set followsMouse under [icedos.desktop.windows.focus] to switch windows by pointing instead of clicking."
+            ]
+            ++ optionals separateScreenFocus [
+              "Each monitor remembers the window you last used on it."
+            ];
+
           home-manager.sharedModules = [
             {
               programs.plasma.configFile.kwinrc.Windows = {

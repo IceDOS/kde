@@ -26,6 +26,11 @@
           inherit (config.icedos.desktop.kde.shortcuts) bindings hotkeys;
         in
         {
+          icedos.system.tips.list = [
+            "Change any Plasma keyboard shortcut under [icedos.desktop.kde.shortcuts.bindings]."
+            "Run a command of your own on a keypress with [icedos.desktop.kde.shortcuts.hotkeys]."
+          ];
+
           home-manager.sharedModules = [
             {
               programs.plasma.shortcuts = bindings;

@@ -13,6 +13,10 @@
       mkIf cgroupDmemSupported {
         environment.systemPackages = [ booster ];
 
+        icedos.system.tips.list = [
+          "Focused windows get first call on graphics memory, so background apps cannot starve memory from it."
+        ];
+
         home-manager.sharedModules = [
           {
             programs.plasma.configFile.kcgroupsrc = {

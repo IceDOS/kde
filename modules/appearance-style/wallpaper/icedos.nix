@@ -38,6 +38,14 @@
           );
         in
         {
+          icedos.system.tips.list =
+            lib.optionals isPath [
+              "Your wallpaper picture is on the lock screen too."
+            ]
+            ++ lib.optionals isColor [
+              "Your desktop and lock screen use a plain color; set wallpaper under [icedos.desktop] to a picture path."
+            ];
+
           home-manager.sharedModules = [
             (mkIf isPath {
               programs.plasma.workspace = {

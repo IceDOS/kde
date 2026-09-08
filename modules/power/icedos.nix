@@ -10,6 +10,12 @@
           inherit (config.icedos) desktop;
         in
         {
+          icedos.system.tips.list = [
+            "Set how long before the screen locks itself under [icedos.desktop.users.<name>.idle.lock]."
+            "Set how long before the machine sleeps on its own under [icedos.desktop.users.<name>.idle.suspend]."
+            "Set how long before the monitors turn off under [icedos.desktop.users.<name>.idle.disable-monitors]."
+          ];
+
           home-manager.sharedModules = [
             (
               { config, lib, ... }:

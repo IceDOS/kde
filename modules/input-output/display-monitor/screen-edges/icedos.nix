@@ -80,6 +80,7 @@
             mkIf
             optional
             optionalAttrs
+            optionals
             ;
 
           # KWin ElectricBorder enum value per position (9 = disabled/none).
@@ -209,6 +210,14 @@
             (optionalAttrs (electricBorders != { }) { ElectricBorders = electricBorders; }) // effectGroups;
         in
         {
+          icedos.system.tips.list =
+            optionals (screenEdges != [ ]) [
+              "Push the pointer into a screen edge to fire the action you set under [[icedos.desktop.kde.screen-edges]]."
+            ]
+            ++ optionals (screenEdges == [ ]) [
+              "Make a screen corner show every window or lock the screen with [[icedos.desktop.kde.screen-edges]]."
+            ];
+
           home-manager.sharedModules = [
             (mkIf (screenEdges != [ ]) {
               programs.plasma.configFile.kwinrc = kwinrc;
