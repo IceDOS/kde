@@ -36,8 +36,15 @@
     { ... }:
     [
       (
-        { config, pkgs, ... }:
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
         let
+          inherit (lib) optionals;
+
           inherit (config.icedos.desktop.kde.window-borders)
             activeColor
             borderRadius
@@ -50,6 +57,17 @@
         in
         {
           environment.systemPackages = [ effect ];
+
+          icedos.system.tips.list =
+            optionals (borderWidth > 0) [
+              "The colored outline on the window you are using is set under [icedos.desktop.kde.window-borders]."
+            ]
+            ++ optionals (borderWidth == 0) [
+              "Set borderWidth under [icedos.desktop.kde.window-borders] to outline the window you are working in."
+            ]
+            ++ optionals (borderWidth > 0 && excludeClasses != [ ]) [
+              "Some apps are on your exclude list under [icedos.desktop.kde.window-borders], so they get no outline."
+            ];
 
           home-manager.sharedModules = [
             (

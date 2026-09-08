@@ -34,9 +34,14 @@
         let
           inherit (config.icedos.desktop) keyboardLayouts;
           inherit (config.icedos.desktop.kde.keyboard) switchingPolicy;
-          inherit (lib) mkIf;
+          inherit (lib) length mkIf optionals;
         in
         {
+          icedos.system.tips.list = optionals (length keyboardLayouts > 1) [
+            "Meta+Space switches to your next keyboard layout."
+            "Pick what a layout switch covers with switchingPolicy under [icedos.desktop.kde.keyboard]."
+          ];
+
           home-manager.sharedModules = [
             (mkIf (keyboardLayouts != [ ]) {
               programs.plasma.input.keyboard = {

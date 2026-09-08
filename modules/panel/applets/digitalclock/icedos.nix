@@ -5,11 +5,19 @@
     { ... }:
     [
       (
-        { config, ... }:
+        { config, lib, ... }:
         let
           inherit (config.icedos.desktop) clock stylix;
+          inherit (lib) optionals;
         in
         {
+          icedos.system.tips.list = [
+            "Click the clock in your panel to open the calendar."
+          ]
+          ++ optionals clock.seconds [
+            "Your panel clock counts seconds; set seconds to false under [icedos.desktop.clock] for a calmer one."
+          ];
+
           icedos.desktop.kde.panel.applets."org.kde.plasma.digitalclock" = {
             digitalClock = {
               date.enable = clock.date;

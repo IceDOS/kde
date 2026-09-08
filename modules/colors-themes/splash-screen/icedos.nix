@@ -19,10 +19,21 @@
     [
       (
         { config, ... }:
+        let
+          inherit (config.icedos.desktop.kde.splash-screen) theme;
+        in
         {
+          icedos.system.tips.list =
+            lib.optionals (theme == "None") [
+              "Show a loading screen at login with theme under [icedos.desktop.kde.splash-screen]."
+            ]
+            ++ lib.optionals (theme != "None") [
+              "Your login loading screen comes from theme under [icedos.desktop.kde.splash-screen]."
+            ];
+
           home-manager.sharedModules = [
             {
-              programs.plasma.workspace.splashScreen.theme = config.icedos.desktop.kde.splash-screen.theme;
+              programs.plasma.workspace.splashScreen.theme = theme;
             }
           ];
         }

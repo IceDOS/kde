@@ -61,6 +61,12 @@
             ])
             ++ (mapper pkgs.kdePackages excludeDefaultPackages);
 
+          icedos.system.tips.list = [
+            "Panel, theme and shortcut changes show up right after icedos rebuild, with no logout."
+            "Settings IceDOS manages come back on the next rebuild, even if you change them in System Settings."
+            "Drop KDE apps you never open with excludeDefaultPackages under [icedos.desktop.kde]."
+          ];
+
           home-manager.sharedModules = [
             (
               {

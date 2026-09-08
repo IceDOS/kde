@@ -73,8 +73,10 @@
     { ... }:
     [
       (
-        { config, ... }:
+        { config, lib, ... }:
         let
+          inherit (lib) optionals;
+
           inherit (config.icedos.desktop.kde.panel)
             applets
             autohide
@@ -99,6 +101,24 @@
           resolved = map (id: applets.${id} or id) widgets;
         in
         {
+          icedos.system.tips.list = [
+            "Reorder what sits in your panel with widgets under [icedos.desktop.kde.panel]."
+            "Move the panel to the top, left or right with location under [icedos.desktop.kde.panel]."
+            "Make the panel thicker or thinner with height under [icedos.desktop.kde.panel]."
+          ]
+          ++ optionals autohide [
+            "Your panel hides itself; push the mouse to that edge of the screen to bring it back."
+          ]
+          ++ optionals floating [
+            "Your panel floats with a gap around it; set floating to false under [icedos.desktop.kde.panel] to dock it."
+          ]
+          ++ optionals (opacity == "adaptive") [
+            "Your panel turns solid when a window reaches it and clear when the desktop is showing."
+          ]
+          ++ optionals (opacity == "translucent") [
+            "Your panel is see-through; set opacity to opaque under [icedos.desktop.kde.panel] for a solid one."
+          ];
+
           home-manager.sharedModules = [
             (
               { config, ... }:

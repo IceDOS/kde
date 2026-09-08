@@ -73,6 +73,14 @@
         {
           environment.systemPackages = [ script ];
 
+          icedos.system.tips.list = [
+            "Meta+Ctrl+Left and Meta+Ctrl+Right move you between desktops; add Shift to take the window along."
+            "A fresh empty desktop appears once you use the last one, and empty ones go away on their own."
+          ]
+          ++ lib.optionals perScreen [
+            "Each monitor keeps its own desktops, so switching on one screen leaves the other alone."
+          ];
+
           home-manager.sharedModules = [
             {
               programs.plasma = {

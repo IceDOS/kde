@@ -25,6 +25,10 @@
         {
           environment.systemPackages = [ script ];
 
+          icedos.system.tips.list = [
+            "Meta+Shift+2 sends the window you are using to desktop 2 and takes you there with it."
+          ];
+
           home-manager.sharedModules = [
             {
               programs.plasma = {
