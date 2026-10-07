@@ -1,0 +1,16 @@
+{
+  "KPackageStructure": "Plasma/Applet",
+  "KPlugin": {
+    "Id": "org.icedos.lumen",
+    "Name": "Brightness Schedule",
+    "Description": "Scheduled brightness for every monitor",
+    "Icon": "brightness-high",
+    "Category": "System Information",
+    "EnabledByDefault": @tray@,
+    "Version": "0.1.0",
+    "License": "MIT",
+    "Authors": [{ "Name": "IceDOS" }]
+  },
+  "X-Plasma-API-Minimum-Version": "6.0",
+  "X-Plasma-NotificationAreaCategory": "Hardware"
+}

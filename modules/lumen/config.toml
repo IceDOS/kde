@@ -1,0 +1,17 @@
+[icedos.desktop.kde.lumen]
+widget = true
+tray = true
+interval = 60 # seconds between schedule passes
+latitude = 0.0 # needed for sunrise/sunset points
+longitude = 0.0
+minBrightness = 0 # never go below this percent
+tolerance = 2 # percent; a bigger gap from lumen's last value counts as a manual change
+# time is "HH:MM", "sunrise", "sunset", or e.g. "sunset+30" / "sunrise-15" (minutes)
+points = [
+  { time = "sunrise-30", brightness = 40 },
+  { time = "sunrise+60", brightness = 80 },
+  { time = "sunset-60", brightness = 80 },
+  { time = "sunset+60", brightness = 40 },
+  { time = "23:00", brightness = 20 },
+]
+monitors = [] # e.g. [{ label = "MG248", enable = true, scale = 1.0, offset = -10, points = [] }]

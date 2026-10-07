@@ -37,7 +37,7 @@ In the config root's `config.toml`, point this repo's `overrideUrl` at your loca
 checkout (`path:/abs/path/to/kde`), then `icedos rebuild --build` (no activation).
 
 ## Notable modules / gotchas
-- Tiling/zones (`plasmazones`), `panel`, `colors-themes`, `appearance-style`, `power`.
+- Tiling/zones (`plasmazones`), `panel`, `colors-themes`, `appearance-style`, `power`, `wattmeter`, `lumen`.
 - KDE also ships **in-tree KWin effects/scripts** packaged as KWin plugins — e.g.
   `window-borders` (inline C++, stylix-accent)
   (`lib/qt-6/plugins`, versioned ECM requirement).
