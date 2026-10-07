@@ -1,0 +1,16 @@
+[project]
+name = "lumen"
+version = "0.1.0"
+description = "Scheduled per-monitor brightness for KDE Plasma."
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+lumen = "lumen.cli:entry"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["lumen*"]
