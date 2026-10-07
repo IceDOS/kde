@@ -1,0 +1,38 @@
+[icedos.desktop.kde.vigor]
+widget = true
+tray = true
+tune = true # widget profile slider drives CPU governor and boost when power-profiles-daemon cannot
+interval = 2
+currency = "€"
+price = 0.144 # energy price per kWh, before surcharge and VAT
+surcharge = 0.0389 # regulated per-kWh charges added to every band
+vat = 6 # percent
+bands = [] # e.g. [{ start = "23:00", end = "07:00", price = 0.09 }]
+psuEfficiency = 0.88
+baseWatts = 25 # motherboard, RAM, fans, USB
+nicWatts = 1
+standbyWatts = 2 # while suspended or shut down at the wall
+cpuIdleWatts = 15 # fallback model when no energy counter is readable
+cpuMaxWatts = 88
+gpuIdleWatts = 10 # fallback model when the GPU reports no power; also the idle floor for local-AI energy
+gpuMaxWatts = 150
+extraLoads = [] # e.g. [{ name = "Speakers", watts = 10 }]
+# Rolling totals, same labels as prime-agent meters.power.windows: s, m, h, d, w, M (calendar month).
+windows = ["1h", "24h", "7d", "30d"]
+componentWindow = "24h" # which window the per-component costs use; must be in windows
+
+[icedos.desktop.kde.vigor.diskWatts.nvme]
+idle = 1.0
+active = 5.0
+
+[icedos.desktop.kde.vigor.diskWatts.ssd]
+idle = 0.5
+active = 3.0
+
+[icedos.desktop.kde.vigor.diskWatts.hdd]
+idle = 4.0
+active = 7.0
+
+[icedos.desktop.kde.vigor.plug]
+type = "none" # none, shelly (Gen2+), tasmota
+host = ""

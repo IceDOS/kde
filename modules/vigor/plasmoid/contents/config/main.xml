@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+  <group name="General">
+    <!-- Seconds between reads of now.json; reading it is a single cat. -->
+    <entry name="refreshSec" type="Int">
+      <default>2</default>
+      <min>1</min>
+    </entry>
+    <entry name="showWatts" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showCost" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="lastTab" type="Int">
+      <default>0</default>
+    </entry>
+    <!-- Scheduled power action and its due time in epoch ms, set from the Sleep tab. -->
+    <entry name="pendingAction" type="String">
+      <default></default>
+    </entry>
+    <entry name="pendingAt" type="String">
+      <default>0</default>
+    </entry>
+  </group>
+</kcfg>

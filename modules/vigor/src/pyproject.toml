@@ -1,0 +1,16 @@
+[project]
+name = "vigor"
+version = "0.1.0"
+description = "Per-component power draw and electricity cost meter."
+requires-python = ">=3.10"
+dependencies = ["jeepney"]
+
+[project.scripts]
+vigor = "vigor.cli:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["vigor*"]
