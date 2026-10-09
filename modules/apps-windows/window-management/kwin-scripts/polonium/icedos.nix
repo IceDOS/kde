@@ -143,11 +143,16 @@
           buildLayoutSelfHealOld = "    this.engineRootTile = this.tilingEngine.buildLayout();\n    this.tileMap = buildLayout(rootTile, this.engineRootTile);";
           buildLayoutSelfHealNew = "    this.engineRootTile = this.tilingEngine.buildLayout();\n    this.tileMap = buildLayout(rootTile, this.engineRootTile);\n    // IceDOS self-heal: prune engine windows no kwin window maps to\n    // (orphans, e.g. left behind when a desktop was removed while a\n    // desktopsChanged event was queued) and — for the Half engine only —\n    // collapse duplicate boxes for the same window (the phantom: one window in\n    // two boxes renders as an empty tile that permanently hogged space). The\n    // existing windowMap-side prune below cannot see either case, because both\n    // engine windows still map to a live kwin window. Dup collapse is gated on\n    // the Half engine because only it got the matching addWindow guard and\n    // all-boxes removeWindow: ThreeColumn/Pillars/Pager remove one box per call\n    // and lack the guard, so remove+add would reshuffle the layout every\n    // rebuild without converging; KwinEngine.addWindow is a no-op, so the\n    // window would be silently untiled. Orphan pruning is safe for all engines.\n    const invWindowMap = new Map(Array.from(this.windowMap, (a) => [a[1], a[0]]));\n    const seenEngineWindows = new Set();\n    const orphanWindows = new Set();\n    const dupWindows = new Set();\n    const engineStack = [this.engineRootTile];\n    while (engineStack.length > 0) {\n      const engineTile = engineStack.pop();\n      for (const engineWindow of engineTile.windows) {\n        if (!invWindowMap.has(engineWindow)) {\n          orphanWindows.add(engineWindow);\n        } else if (seenEngineWindows.has(engineWindow)) {\n          dupWindows.add(engineWindow);\n        } else {\n          seenEngineWindows.add(engineWindow);\n        }\n      }\n      for (const child of engineTile.children) {\n        engineStack.push(child);\n      }\n    }\n    const collapseDups = this.tilingEngine.engineType === 1 /* Half */ && dupWindows.size > 0;\n    if (orphanWindows.size > 0 || collapseDups) {\n      console().warn(\n        \"pruning\",\n        orphanWindows.size,\n        \"orphaned and\",\n        collapseDups ? dupWindows.size : 0,\n        \"duplicated engine windows\"\n      );\n      for (const engineWindow of orphanWindows) {\n        this.tilingEngine.removeWindow(engineWindow);\n      }\n      if (collapseDups) {\n        for (const engineWindow of dupWindows) {\n          this.tilingEngine.removeWindow(engineWindow);\n          this.tilingEngine.addWindow(engineWindow);\n        }\n      }\n      // Rebuild once so the healed engine reaches the kwin tree. Safe because\n      // Controller.queueEvent drops events while processingEvents is true; a\n      // future event-loop refactor must keep that guarantee or this becomes a\n      // rebuild loop.\n      this.engineRootTile = this.tilingEngine.buildLayout();\n      this.tileMap = buildLayout(rootTile, this.engineRootTile);\n    }";
 
+          # Stock Polonium never registers windows open at init, so a reload strands them.
+          # Must follow the controllerObj assignment: windowAdded calls controller().
+          registerExistingOld = "  controllerObj = new Controller(qmlApi, qmlObjects);\n";
+          registerExistingNew = "  controllerObj = new Controller(qmlApi, qmlObjects);\n  for (const window of qmlApi.workspace.windows) {\n    controllerObj.workspaceHandler.windowAdded(window);\n  }\n";
+
           poloniumPatched =
             pkgs.runCommandLocal "polonium-icedos"
               {
                 meta = {
-                  description = "Polonium with fixes for windows floating after cross-desktop moves and the Half-engine phantom-window bug";
+                  description = "Polonium with fixes for windows floating after cross-desktop moves, the Half-engine phantom-window bug and windows lost on script reload";
                   homepage = "https://polonium.vaughanm.xyz/";
                   license = lib.licenses.mit;
                 };
@@ -160,7 +165,8 @@
                   --replace-fail '${poloniumPatchOld}' '${poloniumPatchNew}' \
                   --replace-fail '${halfAddWindowOld}' '${halfAddWindowNew}' \
                   --replace-fail '${halfRemoveWindowOld}' '${halfRemoveWindowNew}' \
-                  --replace-fail '${buildLayoutSelfHealOld}' '${buildLayoutSelfHealNew}'
+                  --replace-fail '${buildLayoutSelfHealOld}' '${buildLayoutSelfHealNew}' \
+                  --replace-fail '${registerExistingOld}' '${registerExistingNew}'
               '';
         in
         {
