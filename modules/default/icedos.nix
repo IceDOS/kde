@@ -9,15 +9,17 @@
 
   options.icedos.desktop.kde =
     let
-      inherit (icedosLib) mkStrListOption;
+      inherit (icedosLib) mkBoolOption mkStrListOption;
       inherit (lib) importTOML;
 
       inherit ((importTOML ./config.toml).icedos.desktop.kde)
         excludeDefaultPackages
+        pim
         ;
     in
     {
       excludeDefaultPackages = mkStrListOption { default = excludeDefaultPackages; };
+      pim = mkBoolOption { default = pim; };
     };
 
   outputs.nixosModules =
@@ -32,11 +34,14 @@
         }:
 
         let
-          inherit (config.icedos.desktop.kde) excludeDefaultPackages;
+          inherit (config.icedos.desktop.kde) excludeDefaultPackages pim;
           inherit (icedosLib.pkgs) mapper;
         in
         {
           services.desktopManager.plasma6.enable = true;
+
+          # Plasma enables KDE PIM (KMail, Kontact, Merkuro, Akonadi) by default.
+          programs.kde-pim.enable = pim;
 
           # FHS apps (e.g. Signal) ship bundled glib without libsecret; add the
           # store paths session-wide (read-only, so no LD_LIBRARY_PATH hijack).

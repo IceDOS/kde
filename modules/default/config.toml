@@ -1,2 +1,3 @@
 [icedos.desktop.kde]
 excludeDefaultPackages = []
+pim = false # KMail, Kontact, Merkuro and Akonadi
