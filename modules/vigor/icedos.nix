@@ -64,13 +64,13 @@
       gpuIdleWatts = mkNumberOption { default = cfg.gpuIdleWatts; };
       gpuMaxWatts = mkNumberOption { default = cfg.gpuMaxWatts; };
 
-      diskWatts = {
-        nvme = diskOption cfg.diskWatts.nvme;
-        ssd = diskOption cfg.diskWatts.ssd;
-        hdd = diskOption cfg.diskWatts.hdd;
+      disk-watts = {
+        nvme = diskOption cfg.disk-watts.nvme;
+        ssd = diskOption cfg.disk-watts.ssd;
+        hdd = diskOption cfg.disk-watts.hdd;
       };
 
-      extraLoads = mkSubmoduleListOption { default = cfg.extraLoads; } {
+      extra-loads = mkSubmoduleListOption { default = cfg.extra-loads; } {
         name = mkStrOption { default = ""; };
         watts = mkNumberOption { default = 0; };
       };
@@ -152,12 +152,13 @@
                 cpuMaxWatts
                 gpuIdleWatts
                 gpuMaxWatts
-                diskWatts
-                extraLoads
                 plug
                 windows
                 componentWindow
                 ;
+              # vigor reads these as camelCase JSON keys.
+              diskWatts = cfg.disk-watts;
+              extraLoads = cfg.extra-loads;
             }
           );
 

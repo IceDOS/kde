@@ -9,6 +9,7 @@
 - Build/test only via the `icedos` CLI — **never `sudo nixos-rebuild`**.
 - **Never** `git commit/stash/reset/pull` — the user manages git.
 - Every option uses a `validate.*`/`mk*Option` helper; **no untyped options**.
+- Option-path segments that hold other options are **kebab-case** (`agent-bridge`); only leaf value keys are camelCase (`remoteLookup`).
 - A module's `config.toml` defaults must mirror its `icedos.nix` defaults.
 - Format with `icedos nixf .` after editing any `.nix`.
 - If a repo or the config root you need isn't checked out locally, **ask the user** for

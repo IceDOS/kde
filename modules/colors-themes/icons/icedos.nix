@@ -7,7 +7,7 @@
       (
         { config, ... }:
         {
-          icedos.system.tips.list = lib.optionals (config.icedos.desktop.stylix.iconTheme.enable or false) [
+          icedos.system.tips.list = lib.optionals (config.icedos.desktop.stylix.icon-theme.enable or false) [
             "Your icons follow the theme and swap between the light and dark set on their own."
           ];
 
