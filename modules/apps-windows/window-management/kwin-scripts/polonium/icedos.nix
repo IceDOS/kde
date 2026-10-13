@@ -307,7 +307,17 @@
                   "Switch Window Right" = [ ];
                   "Window to Next Screen" = [ ];
                   "Window to Previous Screen" = [ ];
+                  # Zoom default Meta+0 clashes with Switch to Desktop 10.
+                  view_actual_size = [ ];
                 };
+
+                # Plasma defaults grab Meta+1..9 and Meta+Q before KWin sees them.
+                shortcuts.plasmashell = {
+                  "manage activities" = [ ];
+                }
+                // lib.genAttrs (map (n: "activate task manager entry ${toString n}") (lib.range 1 10)) (
+                  _: [ ]
+                );
 
                 # Move lock-screen off Meta+L (PoloniumActivateRight) to
                 # Ctrl+Alt+L so a keyboard lock hotkey survives.
