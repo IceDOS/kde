@@ -109,7 +109,12 @@ PlasmoidItem {
     Sessions.SessionManagement { id: sessionManager }
     readonly property alias sm: sessionManager
 
-    Plasmoid.icon: Qt.resolvedUrl("../icons/vigor.svg").toString().replace("file://", "")
+    // Leaf for power-saver, gauge for balanced, bolt for performance or unknown.
+    Plasmoid.icon: {
+        var active = s && s.profile ? s.profile.active : "";
+        var file = active === "power-saver" || active === "balanced" ? "vigor-" + active + ".svg" : "vigor.svg";
+        return Qt.resolvedUrl("../icons/" + file).toString().replace("file://", "");
+    }
     toolTipMainText: d ? Math.round(d.total_w) + " W" : "vigor"
     toolTipSubText: {
         var lines = [];
