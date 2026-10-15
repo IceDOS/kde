@@ -12,6 +12,9 @@ def no_powerdevil(monkeypatch):
         raise RuntimeError("The name org.kde.ScreenBrightness was not provided by any .service files")
 
     monkeypatch.setattr(display, "_kde_bus", gone)
+    monkeypatch.setattr(display, "_kscreen", gone)
+    monkeypatch.setattr(display, "_lost", {"key": None, "missing": []})
+    monkeypatch.setattr(display, "_reprobed", {})
 
 
 DETECT = """Display 1
@@ -198,9 +201,11 @@ def kde_bus(calls, displays=None):
     return run
 
 
-def test_list_displays_prefers_powerdevil():
+def test_list_displays_prefers_powerdevil(tmp_path):
+    _put(tmp_path / "sys/class/drm/card1-DP-1/status", "connected\n")
+    _put(tmp_path / "sys/class/drm/card1-DP-2/status", "connected\n")
     ddc = []
-    ds = list_displays(run=fake(ddc), run_kde=kde_bus([]))
+    ds = list_displays(run=fake(ddc), sysfs_root=tmp_path, run_kde=kde_bus([]))
     assert ds == [Display("kde:display19", "Mi Monitor", 7500, 10000), Display("kde:display23", "MG248", 3000, 10000)]
     assert ddc == []  # PowerDevil owns the DDC bus, so lumen must not talk to it as well
 
@@ -223,3 +228,28 @@ def test_set_brightness_through_powerdevil():
         "4500",
         "1",
     )]
+
+
+def test_monitor_missing_from_powerdevil_goes_over_ddc_and_is_reprobed(tmp_path):
+    _put(tmp_path / "sys/class/drm/card1-DP-1/status", "connected\n")
+    _put(tmp_path / "sys/class/drm/card1-DP-2/status", "connected\n")
+    _put(tmp_path / "sys/class/drm/card1-Writeback-1/status", "unknown\n")
+    kde = kde_bus([], {"display0": ("MG248", 3000, 10000)})
+    ddc, kscreen = [], []
+
+    ds = list_displays(run=fake(ddc, {("6", "10"): bright(40)}), sysfs_root=tmp_path, run_kde=kde, run_kscreen=kscreen.append)
+    assert ds == [Display("kde:display0", "MG248", 3000, 10000), Display("6", "Mi Monitor", 40, 100, 1)]
+    assert kscreen == ["output.DP-1.ddcCi.disallow", "output.DP-1.ddcCi.allow"]
+
+    ddc.clear()
+    list_displays(run=fake(ddc), sysfs_root=tmp_path, run_kde=kde, run_kscreen=kscreen.append)
+    assert len(kscreen) == 2  # re-probe waits REPROBE_EVERY
+    assert not any(c[0] == "detect" for c in ddc)  # unchanged outputs reuse the last detection
+
+
+def test_no_detect_when_powerdevil_lists_every_output(tmp_path):
+    _put(tmp_path / "sys/class/drm/card1-DP-1/status", "connected\n")
+    _put(tmp_path / "sys/class/drm/card1-DP-2/status", "disconnected\n")
+    ddc = []
+    ds = list_displays(run=fake(ddc), sysfs_root=tmp_path, run_kde=kde_bus([], {"display0": ("MG248", 3000, 10000)}))
+    assert [d.label for d in ds] == ["MG248"] and ddc == []

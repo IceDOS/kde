@@ -2,6 +2,7 @@
 import json
 import re
 import subprocess
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -14,6 +15,7 @@ TYPE_PREF = {"raw": 0, "platform": 1, "firmware": 2}
 KDE = "org.kde.ScreenBrightness"
 KDE_PATH = "/org/kde/ScreenBrightness"
 SUPPRESS_OSD = "1"
+REPROBE_EVERY = 600  # seconds between KWin DDC re-probes of one monitor
 
 
 @dataclass(frozen=True)
@@ -44,6 +46,13 @@ def _busctl(*args: str, scope: str = "--system") -> str:
     p = subprocess.run(["busctl", scope, *args], capture_output=True, text=True, timeout=5)
     if p.returncode:
         raise RuntimeError((p.stderr or p.stdout).strip() or f"busctl {' '.join(args)} exited {p.returncode}")
+    return p.stdout
+
+
+def _kscreen(*args: str) -> str:
+    p = subprocess.run(["kscreen-doctor", *args], capture_output=True, text=True, timeout=10)
+    if p.returncode:
+        raise RuntimeError((p.stderr or p.stdout).strip() or f"kscreen-doctor {' '.join(args)} exited {p.returncode}")
     return p.stdout
 
 
@@ -145,7 +154,8 @@ def _label(model: str) -> str:
     return parts[1] if len(parts) > 1 and parts[1] else parts[0]
 
 
-def _detect(run=_ddcutil) -> list[tuple[str, str]]:
+def _detect(run=_ddcutil) -> list[tuple[str, str, str]]:
+    """(bus, label, DRM connector such as DP-1) for each display that answers DDC."""
     blocks, cur = [], {}
     for line in run("detect", "--brief").splitlines():
         s = line.strip()
@@ -156,11 +166,31 @@ def _detect(run=_ddcutil) -> list[tuple[str, str]]:
             cur = {"invalid": s.startswith("Invalid")}
         elif m := re.match(r"I2C bus:\s*/dev/i2c-(\d+)", s):
             cur["bus"] = m.group(1)
+        elif m := re.match(r"DRM connector:\s*card\d+-(\S+)", s):
+            cur["connector"] = m.group(1)
         elif s.startswith("Monitor:"):
             cur["model"] = s.split(":", 1)[1]
     if cur.get("bus") and not cur.get("invalid"):
         blocks.append(cur)
-    return [(b["bus"], _label(b["model"])) for b in blocks if b.get("model")]
+    return [(b["bus"], _label(b["model"]), b.get("connector", "")) for b in blocks if b.get("model")]
+
+
+def _connected_outputs(root: Path) -> frozenset[str]:
+    try:
+        entries = list((root / "sys/class/drm").iterdir())
+    except OSError:
+        return frozenset()
+    out = set()
+    for p in entries:
+        m = re.match(r"^card\d+-(.+)", p.name)
+        if not m or m.group(1).startswith("Writeback"):
+            continue
+        try:
+            if (p / "status").read_text().strip() == "connected":
+                out.add(m.group(1))
+        except OSError:
+            pass
+    return frozenset(out)
 
 
 def _vcp(bus: str, code: str, run=_ddcutil) -> tuple[int, int]:
@@ -187,25 +217,60 @@ def _kde_displays(run_kde) -> list[Display]:
     return out
 
 
-def list_displays(run=_ddcutil, sysfs_root: Path = Path("/"), run_kde=None) -> list[Display]:
+def _ddc_display(bus: str, label: str, run) -> Display:
+    try:
+        cur, mx = _vcp(bus, BRIGHTNESS, run)
+    except DDC_ERROR:
+        return Display(bus, label, 0, 100, 4)  # silent bus: asleep or busy, so leave it alone
+    try:
+        power = _vcp(bus, POWER, run)[0]
+    except DDC_ERROR:
+        power = 1  # it just answered brightness, so 0xD6 is simply unsupported
+    return Display(bus, label, cur, mx, power)
+
+
+# ddcutil detect is slow, so it reruns only when the connected outputs or PowerDevil's list change.
+_lost: dict = {"key": None, "missing": []}
+_reprobed: dict[str, float] = {}
+
+
+def _lost_by_kde(kde: list[Display], run, sysfs_root: Path, run_kscreen) -> list[Display]:
+    """Monitors that answer DDC but that KWin's probe at login missed, so PowerDevil does not list them."""
+    outputs = _connected_outputs(sysfs_root)
+    labels = frozenset(d.label for d in kde)
+    if _lost["key"] != (outputs, labels):
+        missing = []
+        if len(kde) < len(outputs):
+            try:
+                missing = [m for m in _detect(run) if m[1] not in labels]
+            except DDC_ERROR:
+                pass
+        _lost.update(key=(outputs, labels), missing=missing)
+
+    out = []
+    now = time.monotonic()
+    for bus, label, connector in _lost["missing"]:
+        # Toggling DDC/CI off and on makes KWin probe again; PowerDevil then lists the monitor.
+        if connector and now - _reprobed.get(connector, -REPROBE_EVERY) >= REPROBE_EVERY:
+            _reprobed[connector] = now
+            try:
+                run_kscreen(f"output.{connector}.ddcCi.disallow")
+                run_kscreen(f"output.{connector}.ddcCi.allow")
+            except (*DDC_ERROR, OSError):
+                pass
+        out.append(_ddc_display(bus, label, run))
+    return out
+
+
+def list_displays(run=_ddcutil, sysfs_root: Path = Path("/"), run_kde=None, run_kscreen=None) -> list[Display]:
     # PowerDevil restores its own cached level on wake, so writes must go through it when it runs.
     try:
-        return _kde_displays(run_kde or _kde_bus)
+        kde = _kde_displays(run_kde or _kde_bus)
     except (*DDC_ERROR, OSError, ValueError, KeyError, IndexError):
-        pass
-    out = _detect_edp(sysfs_root)
-    for bus, label in _detect(run):
-        try:
-            cur, mx = _vcp(bus, BRIGHTNESS, run)
-        except DDC_ERROR:
-            out.append(Display(bus, label, 0, 100, 4))  # silent bus: asleep or busy, so leave it alone
-            continue
-        try:
-            power = _vcp(bus, POWER, run)[0]
-        except DDC_ERROR:
-            power = 1  # it just answered brightness, so 0xD6 is simply unsupported
-        out.append(Display(bus, label, cur, mx, power))
-    return out
+        kde = None
+    if kde is not None:
+        return kde + _lost_by_kde(kde, run, sysfs_root, run_kscreen or _kscreen)
+    return _detect_edp(sysfs_root) + [_ddc_display(bus, label, run) for bus, label, _ in _detect(run)]
 
 
 def set_brightness(bus: str, raw: int, run=_ddcutil, run_bus=_busctl, run_kde=None) -> None:

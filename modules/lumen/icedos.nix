@@ -109,6 +109,7 @@
               ":"
               (lib.makeBinPath [
                 pkgs.ddcutil
+                pkgs.kdePackages.libkscreen
                 pkgs.systemd
               ])
               "--set-default"
