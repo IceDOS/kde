@@ -59,7 +59,6 @@
               khelpcenter # Help center
               konsole # Terminal
               ktexteditor # Text edit framework
-              kwin-x11 # X11 session of kwin
               milou # Search engine app
               okular # Document viewer
               qrca # Barcode scanner
