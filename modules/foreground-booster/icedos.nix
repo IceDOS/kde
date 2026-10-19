@@ -1,4 +1,4 @@
-{ lib, ... }: {
+{ icedosLib, lib, ... }: {
   outputs.nixosModules = { inputs, ... }: [
     (
       { config, pkgs, ... }:
@@ -8,7 +8,7 @@
 
         cgroupDmemSupported = versionAtLeast version "7.0";
 
-        booster = (pkgs.extend inputs.jovian.overlays.default).plasma-foreground-booster;
+        booster = icedosLib.jovian.getPackage { inherit inputs pkgs; } "plasma-foreground-booster";
       in
       mkIf cgroupDmemSupported {
         environment.systemPackages = [ booster ];
