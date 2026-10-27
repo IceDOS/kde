@@ -49,10 +49,13 @@ PlasmoidItem {
 
     function duration(sec) {
         sec = Math.max(0, Math.round(sec));
-        var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60);
-        if (h > 0) return i18n("%1 h %2 min", h, m);
-        if (m > 0) return i18n("%1 min", m);
-        return i18n("%1 s", sec);
+        var days = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60);
+        if (sec < 60) return i18n("%1 s", sec);
+        var parts = [];
+        if (days > 0) parts.push(i18n("%1 d", days));
+        if (h > 0) parts.push(i18n("%1 h", h));
+        if (m > 0) parts.push(i18n("%1 min", m));
+        return parts.join(" ");
     }
 
     function stale() {
