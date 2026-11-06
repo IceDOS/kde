@@ -179,8 +179,6 @@
             "Meta+T tiles or untiles the window you are using, so it shares the screen instead of covering it."
             "Meta with an arrow key jumps between tiled windows; add Shift to move the window itself."
             "Meta+\\ opens the tiling menu, where you pick a different layout for this desktop."
-            "Meta+Q closes the window you are using and Meta+F makes it fill the screen."
-            "Meta+L is taken by tiling, so the screen locks with Ctrl+Alt+L instead."
           ]
           ++ lib.optionals (gap == 0) [
             "Put space between tiled windows with gap under [icedos.desktop.kde.polonium]."
@@ -270,58 +268,7 @@
                   PoloniumToggleActiveTiling = "Meta+T";
                   PoloniumToggleSettingsMenu = "Meta+\\";
                   PoloniumCycleEngine = "Meta+|";
-
-                  "Switch to Desktop 1" = lib.mkDefault "Meta+1";
-                  "Switch to Desktop 2" = lib.mkDefault "Meta+2";
-                  "Switch to Desktop 3" = lib.mkDefault "Meta+3";
-                  "Switch to Desktop 4" = lib.mkDefault "Meta+4";
-                  "Switch to Desktop 5" = lib.mkDefault "Meta+5";
-                  "Switch to Desktop 6" = lib.mkDefault "Meta+6";
-                  "Switch to Desktop 7" = lib.mkDefault "Meta+7";
-                  "Switch to Desktop 8" = lib.mkDefault "Meta+8";
-                  "Switch to Desktop 9" = lib.mkDefault "Meta+9";
-                  "Switch to Desktop 10" = lib.mkDefault "Meta+0";
-
-                  "Window Close" = lib.mkDefault [
-                    "Meta+Q"
-                    "Meta+;"
-                  ];
-                  "Window Fullscreen" = [
-                    "Meta+F"
-                    "Meta+Φ"
-                  ];
-
-                  "Window Maximize" = lib.mkDefault "Meta+M";
-                  "Window One Screen Up" = "Meta+Alt+Up";
-                  "Window One Screen Down" = "Meta+Alt+Down";
-                  "Window One Screen to the Left" = "Meta+Alt+Left";
-                  "Window One Screen to the Right" = "Meta+Alt+Right";
-                  "Edit Tiles" = [ ];
-                  "Window Quick Tile Top" = [ ];
-                  "Window Quick Tile Bottom" = [ ];
-                  "Window Quick Tile Left" = [ ];
-                  "Window Quick Tile Right" = [ ];
-                  "Switch Window Up" = [ ];
-                  "Switch Window Down" = [ ];
-                  "Switch Window Left" = [ ];
-                  "Switch Window Right" = [ ];
-                  "Window to Next Screen" = [ ];
-                  "Window to Previous Screen" = [ ];
-                  # Zoom default Meta+0 clashes with Switch to Desktop 10.
-                  view_actual_size = [ ];
                 };
-
-                # Plasma defaults grab Meta+1..9 and Meta+Q before KWin sees them.
-                shortcuts.plasmashell = {
-                  "manage activities" = [ ];
-                }
-                // lib.genAttrs (map (n: "activate task manager entry ${toString n}") (lib.range 1 10)) (
-                  _: [ ]
-                );
-
-                # Move lock-screen off Meta+L (PoloniumActivateRight) to
-                # Ctrl+Alt+L so a keyboard lock hotkey survives.
-                shortcuts.ksmserver."Lock Session" = lib.mkDefault "Ctrl+Alt+L";
               };
             }
           ];
@@ -329,5 +276,13 @@
       )
     ];
 
-  meta.name = "polonium";
+  meta = {
+    name = "polonium";
+
+    dependencies = [
+      {
+        modules = [ "window-shortcuts" ];
+      }
+    ];
+  };
 }
