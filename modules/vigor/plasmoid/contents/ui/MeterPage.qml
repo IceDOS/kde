@@ -189,7 +189,7 @@ Page {
         }
     }
 
-    // prime-agent's local models: marginal GPU draw, already inside the GPU row above.
+    // pi-agent's local models: marginal GPU draw, already inside the GPU row above.
     RowLayout {
         visible: app.ai !== null
         Layout.fillWidth: true

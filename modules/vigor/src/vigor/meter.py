@@ -93,7 +93,7 @@ class Meter:
         ))
         for c, w in watts.items():
             self._add(cur["t"], c, w * dt / 3600)
-        # A local-model request owns the GPU draw above idle, as prime-agent's own meter counts it.
+        # A local-model request owns the GPU draw above idle, as pi-agent's own meter counts it.
         active = self.ai_active()
         ai_w = max(0.0, watts["gpu"] - self.cfg.gpu_idle_watts) if active else 0.0
         if ai_w:

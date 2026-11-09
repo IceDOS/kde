@@ -1,8 +1,8 @@
-"""Leases prime-agent keeps fresh while a local-model request runs."""
+"""Leases pi-agent keeps fresh while a local-model request runs."""
 import os
 from pathlib import Path
 
-# prime-agent touches its lease every second; a crashed session stops counting after this.
+# pi-agent touches its lease every second; a crashed session stops counting after this.
 STALE_S = 5.0
 
 

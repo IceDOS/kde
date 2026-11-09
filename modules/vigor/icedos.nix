@@ -75,7 +75,7 @@
         watts = mkNumberOption { default = 0; };
       };
 
-      # Same grammar as prime-agent meters.power.windows; checked by the assertions below.
+      # Same grammar as pi-agent meters.power.windows; checked by the assertions below.
       windows = mkStrListOption { default = cfg.windows; };
       componentWindow = mkStrOption { default = cfg.componentWindow; };
 
@@ -241,7 +241,7 @@
 
           environment.systemPackages = [ vigorPkg ];
 
-          # prime-agent still writes its local-model leases under the old name.
+          # pi-agent's power meter still writes its local-model leases under the old name.
           systemd.tmpfiles.rules = [ "L+ /run/wattmeter - - - - /run/vigor" ];
 
           # Only the exact tune command, only for a local active session; anything else still asks.

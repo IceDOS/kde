@@ -8,7 +8,7 @@ from pathlib import Path
 # systemd sets these from StateDirectory= and RuntimeDirectory=; the CLI falls back to the same paths.
 DB_PATH = Path(os.environ.get("STATE_DIRECTORY", "/var/lib/vigor")) / "vigor.db"
 NOW_PATH = Path(os.environ.get("RUNTIME_DIRECTORY", "/run/vigor")) / "now.json"
-# prime-agent touches one file here per in-flight local-model request (Task 9).
+# pi-agent touches one file here per in-flight local-model request (Task 9).
 LEASE_DIR = NOW_PATH.parent / "ai"
 
 

@@ -1,4 +1,4 @@
-"""Window labels shared with prime-agent's cost footer: "15m", "24h", "2w", "1M" (calendar months)."""
+"""Window labels shared with pi-agent's cost footer: "15m", "24h", "2w", "1M" (calendar months)."""
 import calendar
 import re
 from datetime import datetime
