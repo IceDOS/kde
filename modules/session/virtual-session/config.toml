@@ -1,0 +1,9 @@
+[icedos.desktop.kde.virtual-session]
+# Moonlight entry for the virtual Plasma desktop.
+appName = "KDE Virtual Desktop"
+# "isolated" gives the session its own HOME and wallet under ~/.local/state/sunshine-headless/kwin.
+# "shared" uses your real home and relays your running desktop's wallet. Both Plasma sessions then
+# write the same config files, and the last save wins.
+home = "isolated"
+# Publish that entry; false leaves only apps that set compositor = "kwin".
+publishDesktop = true

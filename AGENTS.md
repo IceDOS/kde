@@ -44,3 +44,13 @@ checkout (`path:/abs/path/to/kde`), then `icedos rebuild --build` (no activation
   (`lib/qt-6/plugins`, versioned ECM requirement).
 - **KWin scripts only load at session start** — you must re-login to test them; a
   `--build` won't show their runtime effect.
+- `kde-virtual-session` is the KWin backend for apps' `sunshine-headless`. It runs
+  `kwin_wayland --virtual` on a private bus, Wayland-only and SDR. portal-kde needs `kde-authorized`/`remote-desktop`/`""`
+  in the permission store or it shows a dialog nobody can answer. That entry must stay in the
+  private store, since `""` matches every unsandboxed app. A service override on the KWin bus forces
+  that store's `XDG_DATA_HOME`, and the private bus lists override dirs first because the first
+  service file wins. `home = "isolated"` gives the session its own `HOME` and wallet. `home = "shared"`
+  keeps the real home, and `kwin-wallet-relay.py` forwards the wallet names to the desktop's own
+  `kwalletd6` and `ksecretd`, because a second `ksecretd` on the same files loses entries on save.
+  Shared KWin still runs from a copy of `kwinrc`, so its virtual output never reaches the real config.
+  It has the real `~/.config` in `XDG_CONFIG_DIRS`, so effects read their own rc files there and KWin writes only to the copy.
