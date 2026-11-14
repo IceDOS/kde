@@ -6,7 +6,7 @@
 
 let
   isolated = home == "isolated";
-  homeSubdir = ".local/state/sunshine-headless/kwin/home";
+  homeSubdir = ".local/state/icedos/sunshine-headless/kwin/home";
 
   homeEnv = root: {
     HOME = root;
@@ -227,7 +227,14 @@ in
     # Separate process tree from the desktop's KWin, with its config kept out of ~/.config.
     kwin_start() {
       local w="$1" h="$2" i
-      local state="$HOME/.local/state/sunshine-headless/kwin"
+      local state="$HOME/.local/state/icedos/sunshine-headless/kwin"
+      local legacy_state="$HOME/.local/state/sunshine-headless/kwin" # legacy path pre-2026-11
+      if [ ! -e "$state" ] && [ -d "$legacy_state" ]; then
+        mkdir -p "$(dirname "$state")"
+        mv "$legacy_state" "$state"
+      elif [ -d "$state" ] && [ -d "$legacy_state" ]; then
+        echo "sunshine-headless: legacy state dir $legacy_state ignored" >&2
+      fi
       ${
         if isolated then
           ''mkdir -p "$state/home/.config" "$state/home/.local/share" "$state/home/.local/state" "$state/home/.cache"''

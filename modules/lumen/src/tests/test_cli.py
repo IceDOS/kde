@@ -25,7 +25,7 @@ def env(tmp_path, monkeypatch):
 
 
 def state(tmp_path):
-    return json.loads((tmp_path / "state" / "lumen" / "state.json").read_text())
+    return json.loads((tmp_path / "state" / "icedos" / "lumen" / "state.json").read_text())
 
 
 def test_set_writes_and_holds(env):
@@ -68,7 +68,7 @@ def test_set_asleep_label_fails(env, monkeypatch, capsys):
     assert cli.main(["set", "MG248", "40"]) == 1
     assert calls == []
     assert "asleep" in capsys.readouterr().err
-    assert not (tmp_path / "state" / "lumen" / "state.json").exists()
+    assert not (tmp_path / "state" / "icedos" / "lumen" / "state.json").exists()
 
 
 def test_pause_and_resume(env):
@@ -84,7 +84,7 @@ def test_edit_validates(env, capsys):
     assert cli.main(["edit", json.dumps({"points": [{"time": "noon", "brightness": 5}]})]) == 2
     assert "noon" in capsys.readouterr().err
     assert cli.main(["edit", json.dumps({"points": [{"time": "09:00", "brightness": 50}]})]) == 0
-    edits = tmp_path / "state" / "lumen" / "edits.json"
+    edits = tmp_path / "state" / "icedos" / "lumen" / "edits.json"
     assert json.loads(edits.read_text())["points"][0]["time"] == "09:00"
     cli.main(["reset"])
     assert not edits.exists()
@@ -97,7 +97,7 @@ def test_status_without_daemon(env, capsys):
 
 def test_edit_equal_to_nix_removes_file(env):
     tmp_path, _ = env
-    edits = tmp_path / "state" / "lumen" / "edits.json"
+    edits = tmp_path / "state" / "icedos" / "lumen" / "edits.json"
     cli.main(["edit", json.dumps({"points": [{"time": "09:00", "brightness": 50}]})])
     assert edits.exists()
     assert cli.main(["edit", json.dumps({"points": RAW["points"], "monitors": [{"label": "MG248", "offset": 0}]})]) == 0
