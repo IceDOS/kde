@@ -30,10 +30,7 @@
                 Description = "Foreground app CPU weight booster";
 
                 BindsTo = [ "plasma-kwin_wayland.service" ];
-                After = [
-                  "plasma-kwin_wayland.service"
-                  "graphical-session.target"
-                ];
+                After = [ "plasma-kwin_wayland.service" ];
                 PartOf = "graphical-session.target";
               };
 
