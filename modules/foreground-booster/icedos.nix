@@ -7,10 +7,11 @@
         inherit (lib) mkIf versionAtLeast;
 
         cgroupDmemSupported = versionAtLeast version "7.0";
+        pending = config.icedos.system.cache.pending;
 
         booster = icedosLib.jovian.getPackage { inherit inputs pkgs; } "plasma-foreground-booster";
       in
-      mkIf cgroupDmemSupported {
+      mkIf (cgroupDmemSupported && !pending) {
         environment.systemPackages = [ booster ];
 
         icedos.system.tips.list = [
