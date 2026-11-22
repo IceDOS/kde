@@ -33,6 +33,7 @@
           ...
         }:
         let
+          pending = config.icedos.system.cache.pending;
           inherit (config.icedos.desktop.kde.plasmazones) algorithm gap;
 
           # kglobalshortcutsrc decides the active keys; these keep config.json in step with it.
@@ -65,7 +66,7 @@
             text = builtins.readFile ./merge-settings.sh;
           };
         in
-        {
+        lib.mkIf (!pending) {
           programs.plasmazones = {
             enable = true;
             autostart = true;
