@@ -1,0 +1,7 @@
+[icedos.desktop.kde.bigscreen]
+# Make bigscreen the only Plasma session, for TV boxes.
+replacePlasma = false
+# Publish a bigscreen Moonlight entry via sunshine-headless.
+headless = false
+# Moonlight entry name, used when headless = true.
+appName = "Plasma Bigscreen"

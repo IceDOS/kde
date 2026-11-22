@@ -1,5 +1,13 @@
-{ icedosLib, lib, ... }:
+{
+  config ? { },
+  icedosLib,
+  lib,
+  ...
+}:
 
+let
+  replacePlasma = config.desktop.kde.bigscreen.replacePlasma or false;
+in
 {
   inputs.plasma-manager = {
     url = "github:nix-community/plasma-manager";
@@ -29,6 +37,7 @@
         {
           config,
           icedosLib,
+          lib,
           pkgs,
           ...
         }:
@@ -65,11 +74,14 @@
             ])
             ++ (mapper pkgs.kdePackages excludeDefaultPackages);
 
-          icedos.system.tips.list = [
-            "Panel, theme and shortcut changes show up right after icedos rebuild, with no logout."
-            "Settings IceDOS manages come back on the next rebuild, even if you change them in System Settings."
-            "Drop KDE apps you never open with excludeDefaultPackages under [icedos.desktop.kde]."
-          ];
+          icedos.system.tips.list =
+            lib.optionals (!replacePlasma) [
+              "Panel, theme and shortcut changes show up right after icedos rebuild, with no logout."
+              "Settings IceDOS manages come back on the next rebuild, even if you change them in System Settings."
+            ]
+            ++ [
+              "Drop KDE apps you never open with excludeDefaultPackages under [icedos.desktop.kde]."
+            ];
 
           home-manager.sharedModules = [
             (
@@ -85,30 +97,30 @@
                   inputs.plasma-manager.homeModules.plasma-manager
                 ];
 
-                programs.plasma.enable = true;
+                programs.plasma.enable = !replacePlasma;
 
-                # plasma-apply-lookandfeel (stylix + plasma-manager activations)
-                # needs XDG_MENU_PREFIX to find plasma-applications.menu.
-                home.activation.icedosXdgMenuPrefix =
-                  lib.hm.dag.entryBefore [ "stylixLookAndFeel" "icedosPlasmaApply" ]
-                    ''
-                      export XDG_MENU_PREFIX="plasma-"
-                    '';
+                home.activation = lib.mkIf (!replacePlasma) {
+                  # plasma-apply-lookandfeel (stylix + plasma-manager activations)
+                  # needs XDG_MENU_PREFIX to find plasma-applications.menu.
+                  icedosXdgMenuPrefix = lib.hm.dag.entryBefore [ "stylixLookAndFeel" "icedosPlasmaApply" ] ''
+                    export XDG_MENU_PREFIX="plasma-"
+                  '';
 
-                # run_all.sh runs at login; re-run it on every rebuild so
-                # panel/theme changes land without a relogin.
-                home.activation.icedosPlasmaApply = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-                  rd="/run/user/$(${pkgs.coreutils}/bin/id -u)"
-                  bus="$rd/bus"
-                  run_all="${config.xdg.dataHome}/plasma-manager/run_all.sh"
+                  # run_all.sh runs at login; re-run it on every rebuild so
+                  # panel/theme changes land without a relogin.
+                  icedosPlasmaApply = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+                    rd="/run/user/$(${pkgs.coreutils}/bin/id -u)"
+                    bus="$rd/bus"
+                    run_all="${config.xdg.dataHome}/plasma-manager/run_all.sh"
 
-                  if [ -S "$bus" ] && [ -x "$run_all" ] \
-                    && XDG_RUNTIME_DIR="$rd" DBUS_SESSION_BUS_ADDRESS="unix:path=$bus" \
-                       /run/current-system/sw/bin/qdbus org.kde.plasmashell >/dev/null 2>&1; then
-                    $DRY_RUN_CMD env PATH="/run/current-system/sw/bin:$PATH" \
-                      XDG_RUNTIME_DIR="$rd" DBUS_SESSION_BUS_ADDRESS="unix:path=$bus" "$run_all" || true
-                  fi
-                '';
+                    if [ -S "$bus" ] && [ -x "$run_all" ] \
+                      && XDG_RUNTIME_DIR="$rd" DBUS_SESSION_BUS_ADDRESS="unix:path=$bus" \
+                         /run/current-system/sw/bin/qdbus org.kde.plasmashell >/dev/null 2>&1; then
+                      $DRY_RUN_CMD env PATH="/run/current-system/sw/bin:$PATH" \
+                        XDG_RUNTIME_DIR="$rd" DBUS_SESSION_BUS_ADDRESS="unix:path=$bus" "$run_all" || true
+                    fi
+                  '';
+                };
               }
             )
           ];
@@ -119,27 +131,29 @@
   meta = {
     name = "default";
 
-    dependencies = [
-      {
-        modules = [
-          "desktop-session"
-          "focus"
-          "icons"
-          "keyboard"
-          "panel"
-          "power"
-          "screen-edges"
-          "shortcuts"
-          "splash-screen"
-          "wallpaper"
-          "window-decorations"
-        ];
-      }
-
-      {
-        url = "github:icedos/desktop";
-        modules = [ "plm" ];
-      }
-    ];
+    dependencies =
+      (lib.optionals (!replacePlasma) [
+        {
+          modules = [
+            "desktop-session"
+            "focus"
+            "icons"
+            "keyboard"
+            "panel"
+            "power"
+            "screen-edges"
+            "shortcuts"
+            "splash-screen"
+            "wallpaper"
+            "window-decorations"
+          ];
+        }
+      ])
+      ++ [
+        {
+          url = "github:icedos/desktop";
+          modules = [ "plm" ];
+        }
+      ];
   };
 }
