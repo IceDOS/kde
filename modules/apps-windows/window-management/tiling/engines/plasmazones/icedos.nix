@@ -2,7 +2,7 @@
 
 {
   inputs.plasmazones = {
-    url = "github:fuddlesworth/PlasmaZones";
+    url = "github:phosphor-works/PlasmaZones";
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
